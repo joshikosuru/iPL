@@ -69,10 +69,13 @@ def p_statement_INIT(p):
 	'statement : VOID MAIN LPAREN RPAREN LFBRACK lines RFBRACK'
 	p[0] = p[6]
 
+def p_lines_eps(p):
+	'lines : '
+
+
 def p_lines_line(p):
 	'''
 	lines : line SEMICOLON lines
-		  | line SEMICOLON
 	'''
 	p[0] = p[1]
 
@@ -92,6 +95,9 @@ def p_decllist_id(p):
 	decllist : POINTER NAME x
 			 | NAME x
 	'''
+	global noOfScalarDecl
+	global noOfPointerDecl
+
 	if p[1] == '*':
 		noOfPointerDecl += 1
 		p[0] = p[3]
@@ -99,21 +105,37 @@ def p_decllist_id(p):
 		noOfScalarDecl += 1
 		p[0] = p[2]
 
+
+def p_x_eps(p):
+	' x : '
+
+
 def p_x_listhandle(p):
 	'''
 	x : COMMA POINTER NAME x
 	  | COMMA NAME x
-	  |
+	  
 	'''
+	global noOfPointerDecl
+	global noOfScalarDecl
 
-	if p[1] == '':
-		pass
-	elif p[2] == '*':
+	if p[2] == '*':
 		p[0] = p[4]
 		noOfPointerDecl += 1
 	else:
 		p[0] = p[3]
 		noOfScalarDecl += 1
+
+def p_assignment_eps(p):
+	'assignment : '
+
+def p_assignment_handle(p):
+	"""
+	assignment : 	POINTER  NAME ASSIGN NUMBER
+				|	NAME ASSIGN POINTER NAME
+	"""
+	global noOfAssignDecl
+	noOfAssignDecl += 1 
 
 def p_error(p):
 	if p:
@@ -126,6 +148,9 @@ def process(data):
 	lex.lex()
 	yacc.yacc()
 	yacc.parse(data)
+	print(noOfScalarDecl)
+	print(noOfPointerDecl)
+	print(noOfAssignDecl)
 
 if __name__ == "__main__":
 	with open (sys.argv[1], "r") as myfile:
