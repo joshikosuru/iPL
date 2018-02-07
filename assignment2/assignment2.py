@@ -35,6 +35,28 @@ reserved_words = {
 	'main' : 'MAIN'
 }
 
+class Tree(object):
+	def __init__(self):
+		self.left = None
+		self.right = None
+		self.data = None
+
+def giveOutputFile(tree, level):
+	if isinstance(tree, Tree):	
+		if(tree.data == 'VAR' or tree.data == 'CONST'):
+			print('\t'*level+tree.data+'('+str(tree.left)+')')
+		else:	
+			print('\t'*level+tree.data)
+			print('\t'*level+'(')
+			giveOutputFile(tree.left, level+1)
+			if(tree.right is not None):
+				print('\t'*(level+1)+',')
+				giveOutputFile(tree.right, level+1)
+			print('\t'*level+')')
+	else:
+		print('\t'*level+str(tree))
+
+
 def t_NUMBER(t):
 	r'\d+'
 	try:
@@ -76,7 +98,7 @@ t_ignore = " \t\n"
 precedence = (
 	('left', 'PLUS', 'MINUS'),
 	('left', 'POINTER', 'DIVIDE'),
-	# ('right', 'UMINUS'),
+	('right', 'UMINUS'),
 )
 
 noOfScalarDecl = 0
@@ -123,12 +145,16 @@ def p_declist_ts(p):
 	noOfPointerDecl += 1 
 
 
-def p_assignmentlist_id(p):
-	'assignmentlist : assignment COMMA assignmentlist'
+# def p_assignmentlist_id(p):
+# 	'assignmentlist : assignment COMMA assignmentlist'
 
 
 def p_assignmentlist_single(p):
 	'assignmentlist : assignment'
+	parseTree = p[1]
+
+	giveOutputFile(parseTree, 0)
+	
 
 def p_decllist_id(p):
 	'''
@@ -158,21 +184,86 @@ def p_x_listhandle(p):
 
 
 
-def p_assignment_new(p):
+def p_assignment_new_name(p):
 	"""
-	assignment : startwithstar ASSIGN NUMBER
-				| startwithstar ASSIGN startwithany
-				| NAME ASSIGN startwithany
+	assignment : NAME ASSIGN startwithany
 	"""
 	global noOfAssignDecl
 	noOfAssignDecl +=1
-	print("ASGN\n(")
-	print('\t'+str(p[1])+"\n\t,")
-	print('\t'+str(p[3])+"\n"+")")
+	root = Tree()
+	root.data = 'ASGN'
+	x = Tree() 
+	x.data = 'VAR'
+	x.left = p[1] 
+	root.left = x
+	root.right = p[3]
+	p[0] = root
+
+
+
+def p_assignment_new_startwithstar(p):
+	"""
+	assignment : startwithstar ASSIGN arithmeticexpr
+	"""
+	global noOfAssignDecl
+	noOfAssignDecl +=1
+	root = Tree()
+	root.data = 'ASGN'
+	root.left = p[1]
+	root.right = p[3]
+	p[0] = root
+
+def p_arithmeticexpr_binop(p):
+	"""
+	arithmeticexpr : arithmeticexpr PLUS arithmeticexpr
+				   | arithmeticexpr MINUS arithmeticexpr
+				   | arithmeticexpr POINTER arithmeticexpr
+				   | arithmeticexpr DIVIDE arithmeticexpr
+	"""
+	# print [repr(p[i]) for i in range(0,4)]
+	x = Tree()
+	x.left = p[1]
+	x.right = p[3]
+	if p[2] == '+':
+		x.data = 'PLUS'
+	elif p[2] == '-':
+		x.data = 'MINUS'
+	elif p[2] == '*':
+		x.data = 'MUL'
+	elif p[2] == '/':
+		x.data = 'DIV'
+	p[0] = x
+
+def p_arithmeticexpr_uminus(p):
+	"""
+	arithmeticexpr : MINUS arithmeticexpr %prec UMINUS
+	"""
+	x = Tree()
+	x.data = 'UMINUS'
+	x.left = p[2]
+	p[0] = x
+
+def p_arithmeticexpr_terminal_NUMBER(p):
+	"""
+	arithmeticexpr : NUMBER
+	"""
+	x = Tree()
+	x.data = 'CONST'
+	x.left = p[1]
+	p[0] = x	
+
+def p_arithmeticexpr_terminal_startwithany(p):
+	"""
+	arithmeticexpr : startwithany
+	"""
+	p[0] = p[1]
 
 def p_startwithstar_define(p):
 	'startwithstar : POINTER startwithany'
-	p[0] = 'DEREF\n\t(\n\t\t'+p[2]+'\n\t)'
+	x = Tree()
+	x.data = 'DEREF'
+	x.left = p[2]
+	p[0] = x
 
 def p_startwithany_define(p):
 	"""
@@ -180,21 +271,18 @@ def p_startwithany_define(p):
 				| AMPERSAND startwithany
 				| NAME
 	"""
-
+	x = Tree()
 	if p[1] == '*':
-		p[0] = 'DEREF\n\t(\n\t\t'+p[2]+'\n\t)'
+		x.data = 'DEREF'
+		x.left = p[2]		
 	elif p[1] == '&':
-		p[0] = 'ADDR\n\t(\n\t\t'+p[2]+'\n\t)'
+		x.data = 'ADDR'
+		x.left = p[2]
 	else:
-		p[0] = 'VAR('+p[1]+')\n'
+		x.data = 'VAR'
+		x.left = p[1]
+	p[0] = x
 
-
-# def p_assignment_twohandle(p):
-# 	"""
-# 	assignment : startwithany ASSIGN assignment
-# 	""" 
-# 	global noOfAssignDecl
-# 	noOfAssignDecl += 1
 
 def p_error(p):
 	if p:
