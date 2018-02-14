@@ -155,8 +155,8 @@ def p_declist_ts(p):
 def p_assignmentlist_single(p):
 	'assignmentlist : assignment'
 	parseTree = p[1]
-
-	giveOutputFile(parseTree, 0)
+	global rootList
+	rootList.append(parseTree)
 	
 
 def p_decllist_id(p):
@@ -304,16 +304,21 @@ def p_error(p):
 
 def process(data):
 	global file
+	global rootList
 	lex.lex()
 	yacc.yacc()
 	yacc.parse(data)
+	file = open(file, "w")
+	for x in rootList:
+		giveOutputFile(x, 0)
 	file.close()
 	# print(noOfScalarDecl)
 	# print(noOfPointerDecl)
 	# print(noOfAssignDecl)
 
 if __name__ == "__main__":
+	rootList = []
 	with open (sys.argv[1], "r") as myfile:
 		data = myfile.read()
-		file = open("Parser_ast_"+sys.argv[1]+".txt", "w")
+		file = "Parser_ast_"+sys.argv[1]+".txt"
 	process(data)
