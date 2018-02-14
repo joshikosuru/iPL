@@ -315,5 +315,5 @@ def process(data):
 if __name__ == "__main__":
 	with open (sys.argv[1], "r") as myfile:
 		data = myfile.read()
-		file = open("Parser_ast_check_"+sys.argv[1]+".txt", "w")
+		file = open("Parser_ast_"+sys.argv[1]+".txt", "w")
 	process(data)
