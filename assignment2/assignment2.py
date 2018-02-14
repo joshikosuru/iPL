@@ -41,20 +41,21 @@ class Tree(object):
 		self.right = None
 		self.data = None
 
+
 def giveOutputFile(tree, level):
 	if isinstance(tree, Tree):	
 		if(tree.data == 'VAR' or tree.data == 'CONST'):
-			print('\t'*level+tree.data+'('+str(tree.left)+')')
+			file.write('\t'*level+tree.data+'('+str(tree.left)+')\n')
 		else:	
-			print('\t'*level+tree.data)
-			print('\t'*level+'(')
+			file.write('\t'*level+tree.data+'\n')
+			file.write('\t'*level+'(\n')
 			giveOutputFile(tree.left, level+1)
 			if(tree.right is not None):
-				print('\t'*(level+1)+',')
+				file.write('\t'*(level+1)+',\n')
 				giveOutputFile(tree.right, level+1)
-			print('\t'*level+')')
+			file.write('\t'*level+')\n')
 	else:
-		print('\t'*level+str(tree))
+		file.write('\t'*level+str(tree)+'\n')
 
 
 def t_NUMBER(t):
@@ -243,6 +244,10 @@ def p_arithmeticexpr_uminus(p):
 	x.left = p[2]
 	p[0] = x
 
+def p_arithmeticexpr_paren(p):
+	'arithmeticexpr : LPAREN arithmeticexpr RPAREN'
+	p[0] = p[2]
+
 def p_arithmeticexpr_terminal_NUMBER(p):
 	"""
 	arithmeticexpr : NUMBER
@@ -293,9 +298,11 @@ def p_error(p):
 
 
 def process(data):
+	global file
 	lex.lex()
 	yacc.yacc()
 	yacc.parse(data)
+	file.close()
 	# print(noOfScalarDecl)
 	# print(noOfPointerDecl)
 	# print(noOfAssignDecl)
@@ -303,4 +310,5 @@ def process(data):
 if __name__ == "__main__":
 	with open (sys.argv[1], "r") as myfile:
 		data = myfile.read()
+		file = open("Parser_ast_"+sys.argv[1]+".txt", "w")
 	process(data)

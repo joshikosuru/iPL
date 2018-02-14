@@ -9,4 +9,5 @@ void main()
    *y = 1;
    *pz = 1;
    *z = **px + (*py - ***px);
+   x = 5 + 5;
 }
