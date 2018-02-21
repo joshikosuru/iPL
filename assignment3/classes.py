@@ -4,6 +4,11 @@ class Tree(object):
 		self.right = None
 		self.data = None
 
+	def __init__(self, left, right, data):
+		self.left = left
+		self.right = right
+		self.data = data		
+
 	def giveOutputFile(self, level, file):
 		if(self.data == 'VAR' or self.data == 'CONST'):
 			file.write('\t'*level+self.data+'('+str(self.left)+')\n')

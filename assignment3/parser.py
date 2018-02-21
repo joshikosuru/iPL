@@ -52,8 +52,6 @@ def t_NAME(t):
 		t.type = reserved_words[t.value]
 	return t
 
-
-
 def t_error(t):
 	print("Syntax Error")
 	sys.exit()
@@ -198,17 +196,10 @@ def p_assignment_new_name(p):
 	"""
 	global noOfAssignDecl
 	noOfAssignDecl +=1
-	root = Tree()
-	root.data = 'ASGN'
-	x = Tree() 
-	x.data = 'VAR'
-	x.left = p[1] 
-	root.left = x
-	root.right = p[3][0]
+	p[0] = Tree( Tree(p[1], None, 'VAR'), p[3][0], 'ASGN')
 	if(not p[3][1]):
 		print("syntax error at =")
 		sys.exit()
-	p[0] = root
 
 
 # ASSIGNMENT WITH LHS AS POINTER
@@ -218,11 +209,7 @@ def p_assignment_new_startwithstar(p):
 	"""
 	global noOfAssignDecl
 	noOfAssignDecl +=1
-	root = Tree()
-	root.data = 'ASGN'
-	root.left = p[1]
-	root.right = p[3][0]
-	p[0] = root
+	p[0] = Tree(p[1], p[3][0], 'ASGN')
 
 
 # HANDLING ARITHMETIC EXPRESSION
@@ -233,29 +220,23 @@ def p_arithmeticexpr_binop(p):
 				   | arithmeticexpr POINTER arithmeticexpr
 				   | arithmeticexpr DIVIDE arithmeticexpr
 	"""
-	x = Tree()
-	x.left = p[1][0]
-	x.right = p[3][0]
 	if p[2] == '+':
-		x.data = 'PLUS'
+		x = Tree(p[1][0], p[3][0], 'PLUS')
 	elif p[2] == '-':
-		x.data = 'MINUS'
+		x = Tree(p[1][0], p[3][0], 'MINUS')
 	elif p[2] == '*':
-		x.data = 'MUL'
+		x = Tree(p[1][0], p[3][0], 'MUL')
 	elif p[2] == '/':
-		x.data = 'DIV'
-	p[0] = [x, p[1][1] or p[3][1]]
+		x = Tree(p[1][0], p[3][0], 'DIV')
 
+	p[0] = [x, p[1][1] or p[3][1]]
 
 # HANDLING -(EXPRESSION)
 def p_arithmeticexpr_uminus(p):
 	"""
 	arithmeticexpr : MINUS arithmeticexpr %prec UMINUS
 	"""
-	x = Tree()
-	x.data = 'UMINUS'
-	x.left = p[2][0]
-	p[0] = [x, p[2][1]]
+	p[0] = [Tree(p[2][0], None, 'UMINUS'), p[2][1]]
 
 
 # HANDLING PARENTHESIS IN ARITHMETIC EXPRESSION
@@ -271,10 +252,7 @@ def p_arithmeticexpr_terminal_NUMBER(p):
 	"""
 	arithmeticexpr : NUMBER
 	"""
-	x = Tree()
-	x.data = 'CONST'
-	x.left = p[1]
-	p[0] = [x, False]
+	p[0] = [Tree(p[1], None, 'CONST'), False]
 
 
 # TERMINAL HANDLING OF ARITHMETIC EXPRESSION INTO NON CONSTANT
@@ -287,11 +265,10 @@ def p_arithmeticexpr_terminal_startwithany(p):
 
 # HANDLING EXPRESSION STARTING WITH STAR
 def p_startwithstar_define(p):
-	'startwithstar : POINTER startwithany'
-	x = Tree()
-	x.data = 'DEREF'
-	x.left = p[2]
-	p[0] = x
+	"""
+	startwithstar : POINTER startwithany
+	"""
+	p[0] = Tree(p[2], None, 'DEREF')
 
 
 # 
@@ -301,18 +278,13 @@ def p_startwithany_define(p):
 				| AMPERSAND startwithany
 				| NAME
 	"""
-	x = Tree()
 	if p[1] == '*':
-		x.data = 'DEREF'
-		x.left = p[2]		
+		x = Tree(p[2], None, 'DEREF')
 	elif p[1] == '&':
-		x.data = 'ADDR'
-		x.left = p[2]
+		x = Tree(p[2], None, 'ADDR')
 	else:
-		x.data = 'VAR'
-		x.left = p[1]
+		x = Tree(p[1], None, 'VAR')
 	p[0] = x
-
 ################# END ASSIGNMENT HANDLING ##########################
 
 
