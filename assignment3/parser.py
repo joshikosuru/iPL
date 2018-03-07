@@ -306,7 +306,7 @@ def process(data):
 	for x in rootList:
 		x.giveOutputFile(0, file)
 	file.close()
-	
+	print("Successfully Parsed")
 	# print(noOfScalarDecl)
 	# print(noOfPointerDecl)
 	# print(noOfAssignDecl)
