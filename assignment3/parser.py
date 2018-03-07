@@ -12,6 +12,9 @@ tokens = (
 	'INT',
 	'VOID',
 	'MAIN',
+	'IF',
+	'WHILE',
+	'ELSE',
 
 	# REMAINING TOKENS HERE
 	'NAME', 
@@ -28,13 +31,25 @@ tokens = (
 	'PLUS',
 	'MINUS',
 	'DIVIDE',
+	'LTE',
+	'GTE',
+	'LT',
+	'GT',
+	'COMPAREEQUAL',
+	'NEGATION',
+	'COMPARENOTEQUAL',
+	'OR',
+	'AND'
 
 )
 
 reserved_words = {
 	'int' : 'INT',
 	'void' : 'VOID',
-	'main' : 'MAIN'
+	'main' : 'MAIN',
+	'if' : 	'IF',
+	'while' : 'WHILE',
+	'else' : 'ELSE'
 }
 
 def t_NUMBER(t):
@@ -70,6 +85,16 @@ t_PLUS = r'\+'
 t_MINUS = r'-'
 t_DIVIDE = r'/'
 
+t_LTE = r'<='
+t_GTE = r'>='
+t_LT = r'<'
+t_GT = r'>'
+t_COMPAREEQUAL = r'=='
+t_NEGATION = r'!'
+t_COMPARENOTEQUAL = r'!='
+t_OR = r'\|\|'
+t_AND = r'&&'
+
 t_ignore = " \t\n"
 
 
@@ -78,6 +103,8 @@ precedence = (
 	('left', 'PLUS', 'MINUS'),
 	('left', 'POINTER', 'DIVIDE'),
 	('right', 'UMINUS'),
+	('left','OR','AND'),
+	('right','NEGATION'),
 )
 
 
@@ -103,6 +130,80 @@ def p_lines_eps(p):
 	"""
 	lines : 
 	"""
+def p_lines_defblock(p):
+	""" 
+	lines : ifblock lines
+			| whileblock lines 
+	"""
+
+############### IF - WHILE CONDITIONAL HANDLING ##############
+
+def p_ifblock_if(p):
+	"""
+	ifblock : IF LPAREN CONDITION  RPAREN conditionalbody
+	"""
+
+
+def p_whileblock_def(p):
+	"""
+	whileblock : WHILE LPAREN CONDITION RPAREN conditionalbody
+	"""
+
+def p_ifblock_ifelse(p):
+	"""
+	ifblock : IF LPAREN CONDITION RPAREN  conditionalbody ELSE ifelsehandler
+	"""
+
+
+def p_ifelsehandler_terminate(p):
+	"""
+	ifelsehandler : conditionalbody
+	"""
+
+def p_ifelsehandler_nem(p):
+	"""
+	ifelsehandler : ifblock
+	"""
+
+def p_conditionalbody_def(p):
+	"""
+	conditionalbody : line SEMICOLON 
+					| LFBRACK lines RFBRACK 
+	"""	
+
+def p_CONDITION_exist(p):
+	"""
+	CONDITION : booleanexpr
+	"""
+	p[0]=p[1]
+
+def p_booleanexpr_term(p):
+	"""
+	booleanexpr : booleanexpr OR booleanexpr
+	            | booleanexpr AND booleanexpr
+	            | LPAREN booleanexpr RPAREN
+	            | NEGATION booleanexpr
+	"""
+
+def p_boolfromarith_def(p):
+	"""
+	boolfromarith : arithmeticexpr LTE arithmeticexpr
+		        	 | arithmeticexpr GTE arithmeticexpr
+		        	 | arithmeticexpr LT arithmeticexpr
+		        	 | arithmeticexpr GT arithmeticexpr
+		        	 | arithmeticexpr COMPARENOTEQUAL arithmeticexpr
+		        	 | arithmeticexpr COMPAREEQUAL arithmeticexpr
+	"""
+	
+
+def p_booleanexpr_boolfromarith(p):
+	"""
+	booleanexpr : boolfromarith
+	"""
+	p[0] = p[1]
+
+################ IF - WHILE CONDITIONAL HANDLING END #########
+
 
 
 # DIVIDING LINE AS DECLARATION OR ASSIGNMENT
@@ -302,10 +403,10 @@ def process(data):
 	lex.lex()
 	yacc.yacc()
 	yacc.parse(data)
-	file = open(file, "w")
-	for x in rootList:
-		x.giveOutputFile(0, file)
-	file.close()
+	# file = open(file, "w")
+	# for x in rootList:
+	# 	x.giveOutputFile(0, file)
+	# file.close()
 	print("Successfully Parsed")
 	# print(noOfScalarDecl)
 	# print(noOfPointerDecl)
