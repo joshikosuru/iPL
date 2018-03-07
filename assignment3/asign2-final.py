@@ -10,6 +10,11 @@ tokens = (
 	'INT',
 	'VOID',
 	'MAIN',
+	'IF',
+	'WHILE',
+	'ELSE',
+
+
 
 	'NAME', 
 	'NUMBER',
@@ -32,7 +37,10 @@ tokens = (
 reserved_words = {
 	'int' : 'INT',
 	'void' : 'VOID',
-	'main' : 'MAIN'
+	'main' : 'MAIN',
+	'if' : 'IF',
+	'while' : 'WHILE',
+	'else' : 'ELSE'
 }
 
 class Tree(object):
@@ -123,6 +131,31 @@ def p_pointerdef_ch(p):
 
 def p_lines_eps(p):
 	'lines : '
+
+
+def p_lines_if(p):
+	'lines : IF LPAREN CONDITION  RPAREN conditionalbody'
+	'lines : WHILE LPAREN CONDITION RPAREN conditionalbody'
+
+
+
+def p_lines_ifelse(p):
+	'lines : IF LPAREN CONDITION RPAREN  conditionalbody ELSE ifelsehandler'
+
+
+def p_ifelsehandler_terminate(p):
+	'ifelsehandler : conditionalbody'
+
+def p_ifelsehandler_nem(p):
+	'ifelsehandler : IF LPAREN CONDITION RPAREN conditionalbody ELSE ifelsehandler'
+
+def p_conditionalbody_def(p):
+	'conditionalbody : SEMICOLON lines'
+	'conditionalbody : line SEMICOLON lines'
+	'conditionalbody : LFBRACK lines RFBRACK lines'	
+
+def p_CONDITION_exist(p):
+	'CONDITION : arithmeticexpr'
 
 
 def p_lines_line(p):
@@ -227,6 +260,9 @@ def p_arithmeticexpr_binop(p):
 				   | arithmeticexpr DIVIDE arithmeticexpr
 	"""
 	# print [repr(p[i]) for i in range(0,4)]
+
+# ADD RULES FOR != == > <  >= <+
+
 	x = Tree()
 	x.left = p[1][0]
 	x.right = p[3][0]
