@@ -1,23 +1,32 @@
 
 <bb 1>
-asgnstatement
-asgnstatement
+a = &e
+b = &f
 goto <bb 2>
 
 <bb 2>
-if(ifcondition) goto <bb 3>
+t0 = -*b
+t1 = *a >= t0
+t2 = *a + *b
+t3 = -t2
+t4 = t3 > 5
+t5 = t1 && t4
+if(t5) goto <bb 3>
 else goto <bb 6>
 
 <bb 3>
-asgnstatement
+t6 = *a + 1
+*a = t6
 goto <bb 4>
 
 <bb 4>
-if(ifcondition) goto <bb 5>
+t7 = *a > 4
+if(t7) goto <bb 5>
 else goto <bb 6>
 
 <bb 5>
-asgnstatement
+t8 = *b + 1
+*b = t8
 goto <bb 6>
 
 <bb 6>

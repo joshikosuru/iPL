@@ -204,6 +204,7 @@ def p_conditionalbody_def(p):
 		if p[1][1]:
 			p[0] = [p[1][0]]
 		else :
+			sys.exit()
 			p[0] = Tree(None,None,'None')
 
 def p_CONDITION_exist(p):
