@@ -191,7 +191,7 @@ def p_ifelsehandler_nem(p):
 	"""
 	ifelsehandler : ifblock
 	"""
-	p[0]=p[1]
+	p[0]=[p[1]]
 
 def p_conditionalbody_def(p):
 	"""
