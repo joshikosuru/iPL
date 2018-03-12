@@ -114,6 +114,9 @@ def p_statement_INIT(p):
 	"""
 	statement : VOID MAIN LPAREN RPAREN LFBRACK lines RFBRACK
 	"""
+	global rootList
+	for line in p[6]:
+		rootList.append(line)
 	p[0] = p[6]
 
 
@@ -122,7 +125,15 @@ def p_lines_line(p):
 	"""
 	lines : line SEMICOLON lines
 	"""
-	p[0] = p[1]
+	if (p[1][1]):
+		# is assignment
+		returnList = []
+		returnList.append(p[1][0])
+		for listitem in p[3]:
+			returnList.append(listitem)
+		p[0] = returnList
+	else:
+		p[0] = p[3]
 
 
 # WHEN ALL LINES ARE FINISHED
@@ -130,11 +141,20 @@ def p_lines_eps(p):
 	"""
 	lines : 
 	"""
+	p[0] = []
+
 def p_lines_defblock(p):
 	""" 
 	lines : ifblock lines
 			| whileblock lines 
 	"""
+
+	returnList = []
+	returnList.append(p[1])
+
+	for listitem in p[2]:
+		returnList.append(listitem)
+	p[0] = returnList
 
 ############### IF - WHILE CONDITIONAL HANDLING ##############
 
@@ -142,34 +162,49 @@ def p_ifblock_if(p):
 	"""
 	ifblock : IF LPAREN CONDITION  RPAREN conditionalbody
 	"""
-
+	x = Tree(p[3],p[5],'IF')
+	p[0] = x
 
 def p_whileblock_def(p):
 	"""
 	whileblock : WHILE LPAREN CONDITION RPAREN conditionalbody
 	"""
+	x = Tree(p[3],p[5],'WHILE')
+	p[0] = x
 
 def p_ifblock_ifelse(p):
 	"""
 	ifblock : IF LPAREN CONDITION RPAREN  conditionalbody ELSE ifelsehandler
 	"""
 
+	x = Tree(p[3],[p[5],p[7]],'IFELSE')
+
+	p[0] = x
 
 def p_ifelsehandler_terminate(p):
 	"""
 	ifelsehandler : conditionalbody
 	"""
+	p[0]=p[1]
 
 def p_ifelsehandler_nem(p):
 	"""
 	ifelsehandler : ifblock
 	"""
+	p[0]=p[1]
 
 def p_conditionalbody_def(p):
 	"""
 	conditionalbody : line SEMICOLON 
 					| LFBRACK lines RFBRACK 
 	"""	
+	if p[1] == '{':
+		p[0] = p[2]
+	else :
+		if p[1][1]:
+			p[0] = [p[1][0]]
+		else :
+			p[0] = Tree(None,None,'None')
 
 def p_CONDITION_exist(p):
 	"""
@@ -184,6 +219,17 @@ def p_booleanexpr_term(p):
 	            | LPAREN booleanexpr RPAREN
 	            | NEGATION booleanexpr
 	"""
+	if p[2] == '||':
+		x = Tree(p[1],p[3],'OR')
+	elif p[2] == '&&':
+		x = Tree(p[1],p[3],'AND')
+	elif p[1] == '(':
+		x = p[2]
+	else:
+		x = Tree(p[2],None,'NOT')
+
+	p[0] = x
+
 
 def p_boolfromarith_def(p):
 	"""
@@ -194,6 +240,23 @@ def p_boolfromarith_def(p):
 		        	 | arithmeticexpr COMPARENOTEQUAL arithmeticexpr
 		        	 | arithmeticexpr COMPAREEQUAL arithmeticexpr
 	"""
+	if p[2] == '<=':
+		x = Tree(p[1][0], p[3][0], 'LE')
+	elif p[2] == '>=':
+		x = Tree(p[1][0], p[3][0], 'GE')
+	elif p[2] == '<':
+		x = Tree(p[1][0], p[3][0], 'LT')
+	elif p[2] == '>':
+		x = Tree(p[1][0], p[3][0], 'GT')
+	elif p[2] == '!=':
+		x = Tree(p[1][0], p[3][0], 'NE')
+	elif p[2] == '==':
+		x = Tree(p[1][0], p[3][0], 'EQ')
+
+	p[0] = x
+
+
+
 	
 
 def p_booleanexpr_boolfromarith(p):
@@ -213,9 +276,9 @@ def p_line_decl(p):
 		 | assignmentlist
 	"""
 	if p[1] == 'int':
-		p[0] = p[2]
+		p[0] = [p[2],False]
 	else:
-		p[0] = p[1]
+		p[0] = [p[1],True]
 
 
 ############################# HANDLING DECLARATION #####################################
@@ -286,8 +349,9 @@ def p_assignmentlist_single(p):
 	assignmentlist : assignment
 	"""
 	parseTree = p[1]
-	global rootList
-	rootList.append(parseTree)
+	p[0] =p[1]
+	# global rootList
+	# rootList.append(parseTree)
 
 
 # ASSIGNMENT WITH LHS AS NAME (SHOULD NOT HAVE ALL CONSTANTS ON RIGHT SIDE)
@@ -403,10 +467,10 @@ def process(data):
 	lex.lex()
 	yacc.yacc()
 	yacc.parse(data)
-	# file = open(file, "w")
-	# for x in rootList:
-	# 	x.giveOutputFile(0, file)
-	# file.close()
+	file = open(file, "w")
+	for x in rootList:
+		x.giveOutputFile(0, file)
+	file.close()
 	print("Successfully Parsed")
 	# print(noOfScalarDecl)
 	# print(noOfPointerDecl)
