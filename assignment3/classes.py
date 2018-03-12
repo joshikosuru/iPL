@@ -1,3 +1,33 @@
+
+binaryOperators = ["LE", "GE", "LT", "GT", "NE", "EQ", "OR", "AND", "PLUS", "MINUS", "POINTER", "DIVIDE", "ASGN"]
+unaryOperators = ["VAR", "ADDR", "UMINUS", "CONST", "DEREF", "NOT"]
+binaryOpMap = {
+	"LE" : "<=",
+	"GE" : ">=",
+	"LT" : "<",
+	"GT" : ">",
+	"NE" : "!=",
+	"EQ" : "==",
+	"OR" : "||",
+	"AND" : "&&",
+	"PLUS" : "+",
+	"MINUS" : "-",
+	"POINTER" : "*",
+	"DIVIDE" : "/",
+	"ASGN" : "="
+}
+
+unaryOpMap = {
+"VAR" : "",
+"ADDR" : "&",
+"UMINUS" : "-",
+"CONST" : "",
+"DEREF" : "*",
+"NOT" : "!"
+}
+
+
+
 class Tree(object):
 	def __init__(self):
 		self.left = None
@@ -44,3 +74,236 @@ class Tree(object):
 			file.write('\t'*level+')\n')
 		# if(level == 0):
 		# 	file.write('\n')
+
+	def giveBlocks(self):
+
+		if (self.data ==  'IF'):
+			
+			block1 = ['ifcondition',2,3,'IF'] # GRAMMAR HAS TO BE WRITTEN
+			returnblock = []
+			returnblock.append(block1)
+
+			block2 = []
+			block2num = 3
+			for item in self.right:
+				blocklist = item.giveBlocks()
+				if blocklist[0]:
+					block2.append(blocklist[1])
+				else:
+					if len(block2)==0:
+						block2=[]
+					else:
+						block2.append(block2num)
+						block2.append('GOTO')
+						returnblock.append(block2)
+						block2 = []
+
+					for some_item in blocklist[1]:
+						a= len(some_item)
+						if(some_item[a-1] == 'IF'):
+							some_item[a-2] += block2num-1
+							some_item[a-3] += block2num-1
+						elif some_item[a-1] == 'GOTO':
+							some_item[a-2] += block2num-1
+						else:
+							continue
+						returnblock.append(some_item)
+					block2num = len(returnblock) + 2
+					# block2.append(item)
+			if len(block2)!= 0:
+				block2.append(block2num)
+				block2.append('GOTO')
+				returnblock.append(block2)
+
+			block3 = ['END']
+			returnblock.append(block3)
+			b = len(block1)
+			returnblock[0][b-2] = len(returnblock)
+			return [False,returnblock]
+
+		elif (self.data == 'WHILE'):
+			block1 = ['ifcondition',2,3,'IF'] # GRAMMAR HAS TO BE WRITTEN
+			returnblock = []
+			returnblock.append(block1)
+
+			block2 = []
+			block2num = 3
+			for item in self.right:
+				blocklist = item.giveBlocks()
+				if blocklist[0]:
+					block2.append(blocklist[1])
+				else:
+					if len(block2)==0:
+						block2=[]
+					else:
+						block2.append(block2num)
+						block2.append('GOTO')
+						returnblock.append(block2)
+						block2 = []
+
+					for some_item in blocklist[1]:
+						a= len(some_item)
+						if(some_item[a-1] == 'IF'):
+							some_item[a-2] += block2num-1
+							some_item[a-3] += block2num-1
+						elif some_item[a-1] == 'GOTO':
+							some_item[a-2] += block2num-1
+						else:
+							continue
+						returnblock.append(some_item)
+					block2num = len(returnblock) + 2
+					# block2.append(item)
+			if len(block2)!= 0:
+				block2.append(1)
+				block2.append('GOTO')
+				returnblock.append(block2)
+
+			block3 = ['END']
+			returnblock.append(block3)
+			b = len(block1)
+			end_block_id = len(returnblock)
+			returnblock[0][b-2] = end_block_id
+
+			for i in range(1,len(returnblock)-1):
+				c = returnblock[i]
+				if c[len(c)-1] == 'IF':
+
+					if c[len(c)-2] == end_block_id:
+						returnblock[i][len(c)-2] = 1
+					if c[len(c)-3] == end_block_id:
+						returnblock[i][len(c)-1] = 1
+
+				else:
+					if c[len(c)-2] == end_block_id:
+						returnblock[i][len(c)-2] = 1
+
+			return [False,returnblock]
+
+
+
+		elif (self.data == 'IFELSE'):
+			block1 = ['ifcondition',2,3,'IF'] # GRAMMAR HAS TO BE WRITTEN
+			returnblock = []
+			returnblock.append(block1)
+
+			block2 = []
+			block2num = 3
+			for item in self.right[0]:
+				blocklist = item.giveBlocks()
+				if blocklist[0]:
+					block2.append(blocklist[1])
+				else:
+					if len(block2)==0:
+						block2=[]
+					else:
+						block2.append(block2num)
+						block2.append('GOTO')
+						returnblock.append(block2)
+						block2 = []
+
+					for some_item in blocklist[1]:
+						a= len(some_item)
+						if(some_item[a-1] == 'IF'):
+							some_item[a-2] += block2num-1
+							some_item[a-3] += block2num-1
+						elif some_item[a-1] == 'GOTO':
+							some_item[a-2] += block2num-1
+						else:
+							continue
+						returnblock.append(some_item)
+					block2num = len(returnblock) + 2
+					# block2.append(item)
+			if len(block2)!= 0:
+				block2.append(block2num)
+				block2.append('GOTO')
+				returnblock.append(block2)
+
+			b = len(block1)
+			returnblock[0][b-2] = block2num
+			
+			block2 = []
+			block2num += 1
+			for item in self.right[1]:
+				blocklist = item.giveBlocks()
+				if blocklist[0]:
+					block2.append(blocklist[1])
+				else:
+					if(len(block2)==0):
+						block2=[]
+					else:
+						block2.append(block2num)
+						block2.append('GOTO')
+						returnblock.append(block2)
+						block2 = []
+
+					for some_item in blocklist[1]:
+						a= len(some_item)
+						if(some_item[a-1]== 'IF'):
+							some_item[a-2] += block2num -1 
+							some_item[a-3] += block2num-1
+						elif some_item[a-1] == 'GOTO':
+							some_item[a-2] += block2num-1
+						else:
+							continue
+						returnblock.append(some_item)
+					block2num = len(returnblock) + 2
+			if len(block2)!= 0:
+				block2.append(block2num)
+				block2.append('GOTO')
+				returnblock.append(block2)
+
+			block3 = ['END']
+			returnblock.append(block3)
+			return [False,returnblock]
+		else:
+			return [True,'asgnstatement'] # null list is of temp variables / statements
+
+	def expand(self, counter, lis):
+		if(self.data == "ASGN"):
+			right, counter, lis = (self.right).expand(counter, lis)
+			left, counter, lis = (self.left).expand(counter, lis)
+			lis += (left+" = "+right+"\n")
+			return "", counter, lis
+		elif(self.data in binaryOperators):
+			left, counter, lis = (self.left).expand(counter, lis)
+			right, counter, lis = (self.right).expand(counter, lis)
+			var = "t"+str(counter)
+			lis += (var+" = "+left+" "+binaryOpMap[self.data]+" "+right+"\n")
+			counter += 1
+			return var, counter, lis
+		elif(self.data == "NOT" or self.data == "UMINUS"):
+			left, counter, lis = (self.left).expand(counter, lis)
+			var = "t"+str(counter)
+			lis += (var+" = "+unaryOpMap[self.data]+left+"\n")
+			counter += 1
+			return var, counter, lis
+		elif(self.data == "ADDR" or self.data == "DEREF"):
+			left, counter, lis = (self.left).expand(counter, lis)
+			var = unaryOpMap[self.data]+left
+			return var, counter, lis
+		elif(self.data == "CONST" or self.data == "VAR"):
+			return self.left, counter, lis
+
+
+def giveCfgFile(rootlist,file):
+	x = Tree(True,rootlist,'IF')
+	blocks = x.giveBlocks()
+	blocks = blocks[1]
+	for i in range(1,len(blocks)):
+		file.write("\n<bb "+str(i)+">\n")
+
+		a = blocks[i]
+		if a[len(a)-1] == 'IF':
+
+			file.write("if("+a[0]+") goto <bb "+str(a[1]-1)+">\n")
+			file.write("else goto <bb "+str(a[2]-1)+">\n")
+
+		elif a[len(a)-1] == 'GOTO':
+
+			for j in range(0,len(a)-2):
+				file.write(a[j]+"\n")
+			file.write("goto <bb "+str(a[len(a)-2]-1)+">\n")
+		else:
+			file.write("End\n")
+
+		

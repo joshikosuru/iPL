@@ -1,0 +1,1913 @@
+Created by PLY version 3.10 (http://www.dabeaz.com/ply)
+
+Grammar
+
+Rule 0     S' -> statement
+Rule 1     statement -> VOID MAIN LPAREN RPAREN LFBRACK lines RFBRACK
+Rule 2     lines -> line SEMICOLON lines
+Rule 3     lines -> <empty>
+Rule 4     lines -> ifblock lines
+Rule 5     lines -> whileblock lines
+Rule 6     ifblock -> IF LPAREN CONDITION RPAREN conditionalbody
+Rule 7     whileblock -> WHILE LPAREN CONDITION RPAREN conditionalbody
+Rule 8     ifblock -> IF LPAREN CONDITION RPAREN conditionalbody ELSE ifelsehandler
+Rule 9     ifelsehandler -> conditionalbody
+Rule 10    ifelsehandler -> ifblock
+Rule 11    conditionalbody -> line SEMICOLON
+Rule 12    conditionalbody -> LFBRACK lines RFBRACK
+Rule 13    CONDITION -> booleanexpr
+Rule 14    booleanexpr -> booleanexpr OR booleanexpr
+Rule 15    booleanexpr -> booleanexpr AND booleanexpr
+Rule 16    booleanexpr -> LPAREN booleanexpr RPAREN
+Rule 17    booleanexpr -> NEGATION booleanexpr
+Rule 18    boolfromarith -> arithmeticexpr LTE arithmeticexpr
+Rule 19    boolfromarith -> arithmeticexpr GTE arithmeticexpr
+Rule 20    boolfromarith -> arithmeticexpr LT arithmeticexpr
+Rule 21    boolfromarith -> arithmeticexpr GT arithmeticexpr
+Rule 22    boolfromarith -> arithmeticexpr COMPARENOTEQUAL arithmeticexpr
+Rule 23    boolfromarith -> arithmeticexpr COMPAREEQUAL arithmeticexpr
+Rule 24    booleanexpr -> boolfromarith
+Rule 25    line -> INT decllist
+Rule 26    line -> assignmentlist
+Rule 27    decllist -> pointerdef x
+Rule 28    pointerdef -> POINTER NAME
+Rule 29    pointerdef -> POINTER pointerdef
+Rule 30    x -> COMMA pointerdef x
+Rule 31    decllist -> NAME x
+Rule 32    x -> COMMA NAME x
+Rule 33    x -> <empty>
+Rule 34    assignmentlist -> assignment
+Rule 35    assignment -> NAME ASSIGN arithmeticexpr
+Rule 36    assignment -> startwithstar ASSIGN arithmeticexpr
+Rule 37    arithmeticexpr -> arithmeticexpr PLUS arithmeticexpr
+Rule 38    arithmeticexpr -> arithmeticexpr MINUS arithmeticexpr
+Rule 39    arithmeticexpr -> arithmeticexpr POINTER arithmeticexpr
+Rule 40    arithmeticexpr -> arithmeticexpr DIVIDE arithmeticexpr
+Rule 41    arithmeticexpr -> MINUS arithmeticexpr
+Rule 42    arithmeticexpr -> LPAREN arithmeticexpr RPAREN
+Rule 43    arithmeticexpr -> NUMBER
+Rule 44    arithmeticexpr -> startwithany
+Rule 45    startwithstar -> POINTER startwithany
+Rule 46    startwithany -> POINTER startwithany
+Rule 47    startwithany -> AMPERSAND startwithany
+Rule 48    startwithany -> NAME
+
+Terminals, with rules where they appear
+
+AMPERSAND            : 47
+AND                  : 15
+ASSIGN               : 35 36
+COMMA                : 30 32
+COMPAREEQUAL         : 23
+COMPARENOTEQUAL      : 22
+DIVIDE               : 40
+ELSE                 : 8
+GT                   : 21
+GTE                  : 19
+IF                   : 6 8
+INT                  : 25
+LFBRACK              : 1 12
+LPAREN               : 1 6 7 8 16 42
+LT                   : 20
+LTE                  : 18
+MAIN                 : 1
+MINUS                : 38 41
+NAME                 : 28 31 32 35 48
+NEGATION             : 17
+NUMBER               : 43
+OR                   : 14
+PLUS                 : 37
+POINTER              : 28 29 39 45 46
+RFBRACK              : 1 12
+RPAREN               : 1 6 7 8 16 42
+SEMICOLON            : 2 11
+VOID                 : 1
+WHILE                : 7
+error                : 
+
+Nonterminals, with rules where they appear
+
+CONDITION            : 6 7 8
+arithmeticexpr       : 18 18 19 19 20 20 21 21 22 22 23 23 35 36 37 37 38 38 39 39 40 40 41 42
+assignment           : 34
+assignmentlist       : 26
+booleanexpr          : 13 14 14 15 15 16 17
+boolfromarith        : 24
+conditionalbody      : 6 7 8 9
+decllist             : 25
+ifblock              : 4 10
+ifelsehandler        : 8
+line                 : 2 11
+lines                : 1 2 4 5 12
+pointerdef           : 27 29 30
+startwithany         : 44 45 46 47
+startwithstar        : 36
+statement            : 0
+whileblock           : 5
+x                    : 27 30 31 32
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . statement
+    (1) statement -> . VOID MAIN LPAREN RPAREN LFBRACK lines RFBRACK
+
+    VOID            shift and go to state 1
+
+    statement                      shift and go to state 2
+
+state 1
+
+    (1) statement -> VOID . MAIN LPAREN RPAREN LFBRACK lines RFBRACK
+
+    MAIN            shift and go to state 3
+
+
+state 2
+
+    (0) S' -> statement .
+
+
+
+state 3
+
+    (1) statement -> VOID MAIN . LPAREN RPAREN LFBRACK lines RFBRACK
+
+    LPAREN          shift and go to state 4
+
+
+state 4
+
+    (1) statement -> VOID MAIN LPAREN . RPAREN LFBRACK lines RFBRACK
+
+    RPAREN          shift and go to state 5
+
+
+state 5
+
+    (1) statement -> VOID MAIN LPAREN RPAREN . LFBRACK lines RFBRACK
+
+    LFBRACK         shift and go to state 6
+
+
+state 6
+
+    (1) statement -> VOID MAIN LPAREN RPAREN LFBRACK . lines RFBRACK
+    (2) lines -> . line SEMICOLON lines
+    (3) lines -> .
+    (4) lines -> . ifblock lines
+    (5) lines -> . whileblock lines
+    (25) line -> . INT decllist
+    (26) line -> . assignmentlist
+    (6) ifblock -> . IF LPAREN CONDITION RPAREN conditionalbody
+    (8) ifblock -> . IF LPAREN CONDITION RPAREN conditionalbody ELSE ifelsehandler
+    (7) whileblock -> . WHILE LPAREN CONDITION RPAREN conditionalbody
+    (34) assignmentlist -> . assignment
+    (35) assignment -> . NAME ASSIGN arithmeticexpr
+    (36) assignment -> . startwithstar ASSIGN arithmeticexpr
+    (45) startwithstar -> . POINTER startwithany
+
+    RFBRACK         reduce using rule 3 (lines -> .)
+    INT             shift and go to state 11
+    IF              shift and go to state 17
+    WHILE           shift and go to state 13
+    NAME            shift and go to state 7
+    POINTER         shift and go to state 16
+
+    assignmentlist                 shift and go to state 14
+    lines                          shift and go to state 8
+    startwithstar                  shift and go to state 15
+    whileblock                     shift and go to state 12
+    assignment                     shift and go to state 18
+    ifblock                        shift and go to state 9
+    line                           shift and go to state 10
+
+state 7
+
+    (35) assignment -> NAME . ASSIGN arithmeticexpr
+
+    ASSIGN          shift and go to state 19
+
+
+state 8
+
+    (1) statement -> VOID MAIN LPAREN RPAREN LFBRACK lines . RFBRACK
+
+    RFBRACK         shift and go to state 20
+
+
+state 9
+
+    (4) lines -> ifblock . lines
+    (2) lines -> . line SEMICOLON lines
+    (3) lines -> .
+    (4) lines -> . ifblock lines
+    (5) lines -> . whileblock lines
+    (25) line -> . INT decllist
+    (26) line -> . assignmentlist
+    (6) ifblock -> . IF LPAREN CONDITION RPAREN conditionalbody
+    (8) ifblock -> . IF LPAREN CONDITION RPAREN conditionalbody ELSE ifelsehandler
+    (7) whileblock -> . WHILE LPAREN CONDITION RPAREN conditionalbody
+    (34) assignmentlist -> . assignment
+    (35) assignment -> . NAME ASSIGN arithmeticexpr
+    (36) assignment -> . startwithstar ASSIGN arithmeticexpr
+    (45) startwithstar -> . POINTER startwithany
+
+    RFBRACK         reduce using rule 3 (lines -> .)
+    INT             shift and go to state 11
+    IF              shift and go to state 17
+    WHILE           shift and go to state 13
+    NAME            shift and go to state 7
+    POINTER         shift and go to state 16
+
+    assignmentlist                 shift and go to state 14
+    lines                          shift and go to state 21
+    startwithstar                  shift and go to state 15
+    whileblock                     shift and go to state 12
+    assignment                     shift and go to state 18
+    ifblock                        shift and go to state 9
+    line                           shift and go to state 10
+
+state 10
+
+    (2) lines -> line . SEMICOLON lines
+
+    SEMICOLON       shift and go to state 22
+
+
+state 11
+
+    (25) line -> INT . decllist
+    (27) decllist -> . pointerdef x
+    (31) decllist -> . NAME x
+    (28) pointerdef -> . POINTER NAME
+    (29) pointerdef -> . POINTER pointerdef
+
+    NAME            shift and go to state 24
+    POINTER         shift and go to state 26
+
+    decllist                       shift and go to state 25
+    pointerdef                     shift and go to state 23
+
+state 12
+
+    (5) lines -> whileblock . lines
+    (2) lines -> . line SEMICOLON lines
+    (3) lines -> .
+    (4) lines -> . ifblock lines
+    (5) lines -> . whileblock lines
+    (25) line -> . INT decllist
+    (26) line -> . assignmentlist
+    (6) ifblock -> . IF LPAREN CONDITION RPAREN conditionalbody
+    (8) ifblock -> . IF LPAREN CONDITION RPAREN conditionalbody ELSE ifelsehandler
+    (7) whileblock -> . WHILE LPAREN CONDITION RPAREN conditionalbody
+    (34) assignmentlist -> . assignment
+    (35) assignment -> . NAME ASSIGN arithmeticexpr
+    (36) assignment -> . startwithstar ASSIGN arithmeticexpr
+    (45) startwithstar -> . POINTER startwithany
+
+    RFBRACK         reduce using rule 3 (lines -> .)
+    INT             shift and go to state 11
+    IF              shift and go to state 17
+    WHILE           shift and go to state 13
+    NAME            shift and go to state 7
+    POINTER         shift and go to state 16
+
+    assignmentlist                 shift and go to state 14
+    lines                          shift and go to state 27
+    startwithstar                  shift and go to state 15
+    whileblock                     shift and go to state 12
+    assignment                     shift and go to state 18
+    ifblock                        shift and go to state 9
+    line                           shift and go to state 10
+
+state 13
+
+    (7) whileblock -> WHILE . LPAREN CONDITION RPAREN conditionalbody
+
+    LPAREN          shift and go to state 28
+
+
+state 14
+
+    (26) line -> assignmentlist .
+
+    SEMICOLON       reduce using rule 26 (line -> assignmentlist .)
+
+
+state 15
+
+    (36) assignment -> startwithstar . ASSIGN arithmeticexpr
+
+    ASSIGN          shift and go to state 29
+
+
+state 16
+
+    (45) startwithstar -> POINTER . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 31
+
+state 17
+
+    (6) ifblock -> IF . LPAREN CONDITION RPAREN conditionalbody
+    (8) ifblock -> IF . LPAREN CONDITION RPAREN conditionalbody ELSE ifelsehandler
+
+    LPAREN          shift and go to state 34
+
+
+state 18
+
+    (34) assignmentlist -> assignment .
+
+    SEMICOLON       reduce using rule 34 (assignmentlist -> assignment .)
+
+
+state 19
+
+    (35) assignment -> NAME ASSIGN . arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    MINUS           shift and go to state 35
+    LPAREN          shift and go to state 38
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    arithmeticexpr                 shift and go to state 39
+
+state 20
+
+    (1) statement -> VOID MAIN LPAREN RPAREN LFBRACK lines RFBRACK .
+
+    $end            reduce using rule 1 (statement -> VOID MAIN LPAREN RPAREN LFBRACK lines RFBRACK .)
+
+
+state 21
+
+    (4) lines -> ifblock lines .
+
+    RFBRACK         reduce using rule 4 (lines -> ifblock lines .)
+
+
+state 22
+
+    (2) lines -> line SEMICOLON . lines
+    (2) lines -> . line SEMICOLON lines
+    (3) lines -> .
+    (4) lines -> . ifblock lines
+    (5) lines -> . whileblock lines
+    (25) line -> . INT decllist
+    (26) line -> . assignmentlist
+    (6) ifblock -> . IF LPAREN CONDITION RPAREN conditionalbody
+    (8) ifblock -> . IF LPAREN CONDITION RPAREN conditionalbody ELSE ifelsehandler
+    (7) whileblock -> . WHILE LPAREN CONDITION RPAREN conditionalbody
+    (34) assignmentlist -> . assignment
+    (35) assignment -> . NAME ASSIGN arithmeticexpr
+    (36) assignment -> . startwithstar ASSIGN arithmeticexpr
+    (45) startwithstar -> . POINTER startwithany
+
+    RFBRACK         reduce using rule 3 (lines -> .)
+    INT             shift and go to state 11
+    IF              shift and go to state 17
+    WHILE           shift and go to state 13
+    NAME            shift and go to state 7
+    POINTER         shift and go to state 16
+
+    assignmentlist                 shift and go to state 14
+    lines                          shift and go to state 40
+    startwithstar                  shift and go to state 15
+    whileblock                     shift and go to state 12
+    assignment                     shift and go to state 18
+    ifblock                        shift and go to state 9
+    line                           shift and go to state 10
+
+state 23
+
+    (27) decllist -> pointerdef . x
+    (30) x -> . COMMA pointerdef x
+    (32) x -> . COMMA NAME x
+    (33) x -> .
+
+    COMMA           shift and go to state 42
+    SEMICOLON       reduce using rule 33 (x -> .)
+
+    x                              shift and go to state 41
+
+state 24
+
+    (31) decllist -> NAME . x
+    (30) x -> . COMMA pointerdef x
+    (32) x -> . COMMA NAME x
+    (33) x -> .
+
+    COMMA           shift and go to state 42
+    SEMICOLON       reduce using rule 33 (x -> .)
+
+    x                              shift and go to state 43
+
+state 25
+
+    (25) line -> INT decllist .
+
+    SEMICOLON       reduce using rule 25 (line -> INT decllist .)
+
+
+state 26
+
+    (28) pointerdef -> POINTER . NAME
+    (29) pointerdef -> POINTER . pointerdef
+    (28) pointerdef -> . POINTER NAME
+    (29) pointerdef -> . POINTER pointerdef
+
+    NAME            shift and go to state 45
+    POINTER         shift and go to state 26
+
+    pointerdef                     shift and go to state 44
+
+state 27
+
+    (5) lines -> whileblock lines .
+
+    RFBRACK         reduce using rule 5 (lines -> whileblock lines .)
+
+
+state 28
+
+    (7) whileblock -> WHILE LPAREN . CONDITION RPAREN conditionalbody
+    (13) CONDITION -> . booleanexpr
+    (14) booleanexpr -> . booleanexpr OR booleanexpr
+    (15) booleanexpr -> . booleanexpr AND booleanexpr
+    (16) booleanexpr -> . LPAREN booleanexpr RPAREN
+    (17) booleanexpr -> . NEGATION booleanexpr
+    (24) booleanexpr -> . boolfromarith
+    (18) boolfromarith -> . arithmeticexpr LTE arithmeticexpr
+    (19) boolfromarith -> . arithmeticexpr GTE arithmeticexpr
+    (20) boolfromarith -> . arithmeticexpr LT arithmeticexpr
+    (21) boolfromarith -> . arithmeticexpr GT arithmeticexpr
+    (22) boolfromarith -> . arithmeticexpr COMPARENOTEQUAL arithmeticexpr
+    (23) boolfromarith -> . arithmeticexpr COMPAREEQUAL arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    LPAREN          shift and go to state 47
+    NEGATION        shift and go to state 49
+    MINUS           shift and go to state 35
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    boolfromarith                  shift and go to state 50
+    arithmeticexpr                 shift and go to state 46
+    CONDITION                      shift and go to state 48
+    booleanexpr                    shift and go to state 51
+    startwithany                   shift and go to state 37
+
+state 29
+
+    (36) assignment -> startwithstar ASSIGN . arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    MINUS           shift and go to state 35
+    LPAREN          shift and go to state 38
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    arithmeticexpr                 shift and go to state 52
+
+state 30
+
+    (46) startwithany -> POINTER . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 53
+
+state 31
+
+    (45) startwithstar -> POINTER startwithany .
+
+    ASSIGN          reduce using rule 45 (startwithstar -> POINTER startwithany .)
+
+
+state 32
+
+    (48) startwithany -> NAME .
+
+    ASSIGN          reduce using rule 48 (startwithany -> NAME .)
+    PLUS            reduce using rule 48 (startwithany -> NAME .)
+    MINUS           reduce using rule 48 (startwithany -> NAME .)
+    POINTER         reduce using rule 48 (startwithany -> NAME .)
+    DIVIDE          reduce using rule 48 (startwithany -> NAME .)
+    SEMICOLON       reduce using rule 48 (startwithany -> NAME .)
+    LTE             reduce using rule 48 (startwithany -> NAME .)
+    GTE             reduce using rule 48 (startwithany -> NAME .)
+    LT              reduce using rule 48 (startwithany -> NAME .)
+    GT              reduce using rule 48 (startwithany -> NAME .)
+    COMPARENOTEQUAL reduce using rule 48 (startwithany -> NAME .)
+    COMPAREEQUAL    reduce using rule 48 (startwithany -> NAME .)
+    RPAREN          reduce using rule 48 (startwithany -> NAME .)
+    OR              reduce using rule 48 (startwithany -> NAME .)
+    AND             reduce using rule 48 (startwithany -> NAME .)
+
+
+state 33
+
+    (47) startwithany -> AMPERSAND . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 54
+
+state 34
+
+    (6) ifblock -> IF LPAREN . CONDITION RPAREN conditionalbody
+    (8) ifblock -> IF LPAREN . CONDITION RPAREN conditionalbody ELSE ifelsehandler
+    (13) CONDITION -> . booleanexpr
+    (14) booleanexpr -> . booleanexpr OR booleanexpr
+    (15) booleanexpr -> . booleanexpr AND booleanexpr
+    (16) booleanexpr -> . LPAREN booleanexpr RPAREN
+    (17) booleanexpr -> . NEGATION booleanexpr
+    (24) booleanexpr -> . boolfromarith
+    (18) boolfromarith -> . arithmeticexpr LTE arithmeticexpr
+    (19) boolfromarith -> . arithmeticexpr GTE arithmeticexpr
+    (20) boolfromarith -> . arithmeticexpr LT arithmeticexpr
+    (21) boolfromarith -> . arithmeticexpr GT arithmeticexpr
+    (22) boolfromarith -> . arithmeticexpr COMPARENOTEQUAL arithmeticexpr
+    (23) boolfromarith -> . arithmeticexpr COMPAREEQUAL arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    LPAREN          shift and go to state 47
+    NEGATION        shift and go to state 49
+    MINUS           shift and go to state 35
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    boolfromarith                  shift and go to state 50
+    arithmeticexpr                 shift and go to state 46
+    CONDITION                      shift and go to state 55
+    booleanexpr                    shift and go to state 51
+    startwithany                   shift and go to state 37
+
+state 35
+
+    (41) arithmeticexpr -> MINUS . arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    MINUS           shift and go to state 35
+    LPAREN          shift and go to state 38
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    arithmeticexpr                 shift and go to state 56
+
+state 36
+
+    (43) arithmeticexpr -> NUMBER .
+
+    PLUS            reduce using rule 43 (arithmeticexpr -> NUMBER .)
+    MINUS           reduce using rule 43 (arithmeticexpr -> NUMBER .)
+    POINTER         reduce using rule 43 (arithmeticexpr -> NUMBER .)
+    DIVIDE          reduce using rule 43 (arithmeticexpr -> NUMBER .)
+    SEMICOLON       reduce using rule 43 (arithmeticexpr -> NUMBER .)
+    LTE             reduce using rule 43 (arithmeticexpr -> NUMBER .)
+    GTE             reduce using rule 43 (arithmeticexpr -> NUMBER .)
+    LT              reduce using rule 43 (arithmeticexpr -> NUMBER .)
+    GT              reduce using rule 43 (arithmeticexpr -> NUMBER .)
+    COMPARENOTEQUAL reduce using rule 43 (arithmeticexpr -> NUMBER .)
+    COMPAREEQUAL    reduce using rule 43 (arithmeticexpr -> NUMBER .)
+    RPAREN          reduce using rule 43 (arithmeticexpr -> NUMBER .)
+    OR              reduce using rule 43 (arithmeticexpr -> NUMBER .)
+    AND             reduce using rule 43 (arithmeticexpr -> NUMBER .)
+
+
+state 37
+
+    (44) arithmeticexpr -> startwithany .
+
+    PLUS            reduce using rule 44 (arithmeticexpr -> startwithany .)
+    MINUS           reduce using rule 44 (arithmeticexpr -> startwithany .)
+    POINTER         reduce using rule 44 (arithmeticexpr -> startwithany .)
+    DIVIDE          reduce using rule 44 (arithmeticexpr -> startwithany .)
+    SEMICOLON       reduce using rule 44 (arithmeticexpr -> startwithany .)
+    LTE             reduce using rule 44 (arithmeticexpr -> startwithany .)
+    GTE             reduce using rule 44 (arithmeticexpr -> startwithany .)
+    LT              reduce using rule 44 (arithmeticexpr -> startwithany .)
+    GT              reduce using rule 44 (arithmeticexpr -> startwithany .)
+    COMPARENOTEQUAL reduce using rule 44 (arithmeticexpr -> startwithany .)
+    COMPAREEQUAL    reduce using rule 44 (arithmeticexpr -> startwithany .)
+    RPAREN          reduce using rule 44 (arithmeticexpr -> startwithany .)
+    OR              reduce using rule 44 (arithmeticexpr -> startwithany .)
+    AND             reduce using rule 44 (arithmeticexpr -> startwithany .)
+
+
+state 38
+
+    (42) arithmeticexpr -> LPAREN . arithmeticexpr RPAREN
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    MINUS           shift and go to state 35
+    LPAREN          shift and go to state 38
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    arithmeticexpr                 shift and go to state 57
+
+state 39
+
+    (35) assignment -> NAME ASSIGN arithmeticexpr .
+    (37) arithmeticexpr -> arithmeticexpr . PLUS arithmeticexpr
+    (38) arithmeticexpr -> arithmeticexpr . MINUS arithmeticexpr
+    (39) arithmeticexpr -> arithmeticexpr . POINTER arithmeticexpr
+    (40) arithmeticexpr -> arithmeticexpr . DIVIDE arithmeticexpr
+
+    SEMICOLON       reduce using rule 35 (assignment -> NAME ASSIGN arithmeticexpr .)
+    PLUS            shift and go to state 60
+    MINUS           shift and go to state 58
+    POINTER         shift and go to state 59
+    DIVIDE          shift and go to state 61
+
+
+state 40
+
+    (2) lines -> line SEMICOLON lines .
+
+    RFBRACK         reduce using rule 2 (lines -> line SEMICOLON lines .)
+
+
+state 41
+
+    (27) decllist -> pointerdef x .
+
+    SEMICOLON       reduce using rule 27 (decllist -> pointerdef x .)
+
+
+state 42
+
+    (30) x -> COMMA . pointerdef x
+    (32) x -> COMMA . NAME x
+    (28) pointerdef -> . POINTER NAME
+    (29) pointerdef -> . POINTER pointerdef
+
+    NAME            shift and go to state 63
+    POINTER         shift and go to state 26
+
+    pointerdef                     shift and go to state 62
+
+state 43
+
+    (31) decllist -> NAME x .
+
+    SEMICOLON       reduce using rule 31 (decllist -> NAME x .)
+
+
+state 44
+
+    (29) pointerdef -> POINTER pointerdef .
+
+    COMMA           reduce using rule 29 (pointerdef -> POINTER pointerdef .)
+    SEMICOLON       reduce using rule 29 (pointerdef -> POINTER pointerdef .)
+
+
+state 45
+
+    (28) pointerdef -> POINTER NAME .
+
+    COMMA           reduce using rule 28 (pointerdef -> POINTER NAME .)
+    SEMICOLON       reduce using rule 28 (pointerdef -> POINTER NAME .)
+
+
+state 46
+
+    (18) boolfromarith -> arithmeticexpr . LTE arithmeticexpr
+    (19) boolfromarith -> arithmeticexpr . GTE arithmeticexpr
+    (20) boolfromarith -> arithmeticexpr . LT arithmeticexpr
+    (21) boolfromarith -> arithmeticexpr . GT arithmeticexpr
+    (22) boolfromarith -> arithmeticexpr . COMPARENOTEQUAL arithmeticexpr
+    (23) boolfromarith -> arithmeticexpr . COMPAREEQUAL arithmeticexpr
+    (37) arithmeticexpr -> arithmeticexpr . PLUS arithmeticexpr
+    (38) arithmeticexpr -> arithmeticexpr . MINUS arithmeticexpr
+    (39) arithmeticexpr -> arithmeticexpr . POINTER arithmeticexpr
+    (40) arithmeticexpr -> arithmeticexpr . DIVIDE arithmeticexpr
+
+    LTE             shift and go to state 68
+    GTE             shift and go to state 66
+    LT              shift and go to state 64
+    GT              shift and go to state 69
+    COMPARENOTEQUAL shift and go to state 67
+    COMPAREEQUAL    shift and go to state 65
+    PLUS            shift and go to state 60
+    MINUS           shift and go to state 58
+    POINTER         shift and go to state 59
+    DIVIDE          shift and go to state 61
+
+
+state 47
+
+    (16) booleanexpr -> LPAREN . booleanexpr RPAREN
+    (42) arithmeticexpr -> LPAREN . arithmeticexpr RPAREN
+    (14) booleanexpr -> . booleanexpr OR booleanexpr
+    (15) booleanexpr -> . booleanexpr AND booleanexpr
+    (16) booleanexpr -> . LPAREN booleanexpr RPAREN
+    (17) booleanexpr -> . NEGATION booleanexpr
+    (24) booleanexpr -> . boolfromarith
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (18) boolfromarith -> . arithmeticexpr LTE arithmeticexpr
+    (19) boolfromarith -> . arithmeticexpr GTE arithmeticexpr
+    (20) boolfromarith -> . arithmeticexpr LT arithmeticexpr
+    (21) boolfromarith -> . arithmeticexpr GT arithmeticexpr
+    (22) boolfromarith -> . arithmeticexpr COMPARENOTEQUAL arithmeticexpr
+    (23) boolfromarith -> . arithmeticexpr COMPAREEQUAL arithmeticexpr
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    LPAREN          shift and go to state 47
+    NEGATION        shift and go to state 49
+    MINUS           shift and go to state 35
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    boolfromarith                  shift and go to state 50
+    booleanexpr                    shift and go to state 71
+    arithmeticexpr                 shift and go to state 70
+
+state 48
+
+    (7) whileblock -> WHILE LPAREN CONDITION . RPAREN conditionalbody
+
+    RPAREN          shift and go to state 72
+
+
+state 49
+
+    (17) booleanexpr -> NEGATION . booleanexpr
+    (14) booleanexpr -> . booleanexpr OR booleanexpr
+    (15) booleanexpr -> . booleanexpr AND booleanexpr
+    (16) booleanexpr -> . LPAREN booleanexpr RPAREN
+    (17) booleanexpr -> . NEGATION booleanexpr
+    (24) booleanexpr -> . boolfromarith
+    (18) boolfromarith -> . arithmeticexpr LTE arithmeticexpr
+    (19) boolfromarith -> . arithmeticexpr GTE arithmeticexpr
+    (20) boolfromarith -> . arithmeticexpr LT arithmeticexpr
+    (21) boolfromarith -> . arithmeticexpr GT arithmeticexpr
+    (22) boolfromarith -> . arithmeticexpr COMPARENOTEQUAL arithmeticexpr
+    (23) boolfromarith -> . arithmeticexpr COMPAREEQUAL arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    LPAREN          shift and go to state 47
+    NEGATION        shift and go to state 49
+    MINUS           shift and go to state 35
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    boolfromarith                  shift and go to state 50
+    booleanexpr                    shift and go to state 73
+    arithmeticexpr                 shift and go to state 46
+
+state 50
+
+    (24) booleanexpr -> boolfromarith .
+
+    OR              reduce using rule 24 (booleanexpr -> boolfromarith .)
+    AND             reduce using rule 24 (booleanexpr -> boolfromarith .)
+    RPAREN          reduce using rule 24 (booleanexpr -> boolfromarith .)
+
+
+state 51
+
+    (13) CONDITION -> booleanexpr .
+    (14) booleanexpr -> booleanexpr . OR booleanexpr
+    (15) booleanexpr -> booleanexpr . AND booleanexpr
+
+    RPAREN          reduce using rule 13 (CONDITION -> booleanexpr .)
+    OR              shift and go to state 74
+    AND             shift and go to state 75
+
+
+state 52
+
+    (36) assignment -> startwithstar ASSIGN arithmeticexpr .
+    (37) arithmeticexpr -> arithmeticexpr . PLUS arithmeticexpr
+    (38) arithmeticexpr -> arithmeticexpr . MINUS arithmeticexpr
+    (39) arithmeticexpr -> arithmeticexpr . POINTER arithmeticexpr
+    (40) arithmeticexpr -> arithmeticexpr . DIVIDE arithmeticexpr
+
+    SEMICOLON       reduce using rule 36 (assignment -> startwithstar ASSIGN arithmeticexpr .)
+    PLUS            shift and go to state 60
+    MINUS           shift and go to state 58
+    POINTER         shift and go to state 59
+    DIVIDE          shift and go to state 61
+
+
+state 53
+
+    (46) startwithany -> POINTER startwithany .
+
+    ASSIGN          reduce using rule 46 (startwithany -> POINTER startwithany .)
+    PLUS            reduce using rule 46 (startwithany -> POINTER startwithany .)
+    MINUS           reduce using rule 46 (startwithany -> POINTER startwithany .)
+    POINTER         reduce using rule 46 (startwithany -> POINTER startwithany .)
+    DIVIDE          reduce using rule 46 (startwithany -> POINTER startwithany .)
+    SEMICOLON       reduce using rule 46 (startwithany -> POINTER startwithany .)
+    LTE             reduce using rule 46 (startwithany -> POINTER startwithany .)
+    GTE             reduce using rule 46 (startwithany -> POINTER startwithany .)
+    LT              reduce using rule 46 (startwithany -> POINTER startwithany .)
+    GT              reduce using rule 46 (startwithany -> POINTER startwithany .)
+    COMPARENOTEQUAL reduce using rule 46 (startwithany -> POINTER startwithany .)
+    COMPAREEQUAL    reduce using rule 46 (startwithany -> POINTER startwithany .)
+    RPAREN          reduce using rule 46 (startwithany -> POINTER startwithany .)
+    OR              reduce using rule 46 (startwithany -> POINTER startwithany .)
+    AND             reduce using rule 46 (startwithany -> POINTER startwithany .)
+
+
+state 54
+
+    (47) startwithany -> AMPERSAND startwithany .
+
+    ASSIGN          reduce using rule 47 (startwithany -> AMPERSAND startwithany .)
+    PLUS            reduce using rule 47 (startwithany -> AMPERSAND startwithany .)
+    MINUS           reduce using rule 47 (startwithany -> AMPERSAND startwithany .)
+    POINTER         reduce using rule 47 (startwithany -> AMPERSAND startwithany .)
+    DIVIDE          reduce using rule 47 (startwithany -> AMPERSAND startwithany .)
+    SEMICOLON       reduce using rule 47 (startwithany -> AMPERSAND startwithany .)
+    LTE             reduce using rule 47 (startwithany -> AMPERSAND startwithany .)
+    GTE             reduce using rule 47 (startwithany -> AMPERSAND startwithany .)
+    LT              reduce using rule 47 (startwithany -> AMPERSAND startwithany .)
+    GT              reduce using rule 47 (startwithany -> AMPERSAND startwithany .)
+    COMPARENOTEQUAL reduce using rule 47 (startwithany -> AMPERSAND startwithany .)
+    COMPAREEQUAL    reduce using rule 47 (startwithany -> AMPERSAND startwithany .)
+    RPAREN          reduce using rule 47 (startwithany -> AMPERSAND startwithany .)
+    OR              reduce using rule 47 (startwithany -> AMPERSAND startwithany .)
+    AND             reduce using rule 47 (startwithany -> AMPERSAND startwithany .)
+
+
+state 55
+
+    (6) ifblock -> IF LPAREN CONDITION . RPAREN conditionalbody
+    (8) ifblock -> IF LPAREN CONDITION . RPAREN conditionalbody ELSE ifelsehandler
+
+    RPAREN          shift and go to state 76
+
+
+state 56
+
+    (41) arithmeticexpr -> MINUS arithmeticexpr .
+    (37) arithmeticexpr -> arithmeticexpr . PLUS arithmeticexpr
+    (38) arithmeticexpr -> arithmeticexpr . MINUS arithmeticexpr
+    (39) arithmeticexpr -> arithmeticexpr . POINTER arithmeticexpr
+    (40) arithmeticexpr -> arithmeticexpr . DIVIDE arithmeticexpr
+
+    PLUS            reduce using rule 41 (arithmeticexpr -> MINUS arithmeticexpr .)
+    MINUS           reduce using rule 41 (arithmeticexpr -> MINUS arithmeticexpr .)
+    POINTER         reduce using rule 41 (arithmeticexpr -> MINUS arithmeticexpr .)
+    DIVIDE          reduce using rule 41 (arithmeticexpr -> MINUS arithmeticexpr .)
+    SEMICOLON       reduce using rule 41 (arithmeticexpr -> MINUS arithmeticexpr .)
+    LTE             reduce using rule 41 (arithmeticexpr -> MINUS arithmeticexpr .)
+    GTE             reduce using rule 41 (arithmeticexpr -> MINUS arithmeticexpr .)
+    LT              reduce using rule 41 (arithmeticexpr -> MINUS arithmeticexpr .)
+    GT              reduce using rule 41 (arithmeticexpr -> MINUS arithmeticexpr .)
+    COMPARENOTEQUAL reduce using rule 41 (arithmeticexpr -> MINUS arithmeticexpr .)
+    COMPAREEQUAL    reduce using rule 41 (arithmeticexpr -> MINUS arithmeticexpr .)
+    RPAREN          reduce using rule 41 (arithmeticexpr -> MINUS arithmeticexpr .)
+    OR              reduce using rule 41 (arithmeticexpr -> MINUS arithmeticexpr .)
+    AND             reduce using rule 41 (arithmeticexpr -> MINUS arithmeticexpr .)
+
+  ! PLUS            [ shift and go to state 60 ]
+  ! MINUS           [ shift and go to state 58 ]
+  ! POINTER         [ shift and go to state 59 ]
+  ! DIVIDE          [ shift and go to state 61 ]
+
+
+state 57
+
+    (42) arithmeticexpr -> LPAREN arithmeticexpr . RPAREN
+    (37) arithmeticexpr -> arithmeticexpr . PLUS arithmeticexpr
+    (38) arithmeticexpr -> arithmeticexpr . MINUS arithmeticexpr
+    (39) arithmeticexpr -> arithmeticexpr . POINTER arithmeticexpr
+    (40) arithmeticexpr -> arithmeticexpr . DIVIDE arithmeticexpr
+
+    RPAREN          shift and go to state 77
+    PLUS            shift and go to state 60
+    MINUS           shift and go to state 58
+    POINTER         shift and go to state 59
+    DIVIDE          shift and go to state 61
+
+
+state 58
+
+    (38) arithmeticexpr -> arithmeticexpr MINUS . arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    MINUS           shift and go to state 35
+    LPAREN          shift and go to state 38
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    arithmeticexpr                 shift and go to state 78
+
+state 59
+
+    (39) arithmeticexpr -> arithmeticexpr POINTER . arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    MINUS           shift and go to state 35
+    LPAREN          shift and go to state 38
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    arithmeticexpr                 shift and go to state 79
+
+state 60
+
+    (37) arithmeticexpr -> arithmeticexpr PLUS . arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    MINUS           shift and go to state 35
+    LPAREN          shift and go to state 38
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    arithmeticexpr                 shift and go to state 80
+
+state 61
+
+    (40) arithmeticexpr -> arithmeticexpr DIVIDE . arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    MINUS           shift and go to state 35
+    LPAREN          shift and go to state 38
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    arithmeticexpr                 shift and go to state 81
+
+state 62
+
+    (30) x -> COMMA pointerdef . x
+    (30) x -> . COMMA pointerdef x
+    (32) x -> . COMMA NAME x
+    (33) x -> .
+
+    COMMA           shift and go to state 42
+    SEMICOLON       reduce using rule 33 (x -> .)
+
+    x                              shift and go to state 82
+
+state 63
+
+    (32) x -> COMMA NAME . x
+    (30) x -> . COMMA pointerdef x
+    (32) x -> . COMMA NAME x
+    (33) x -> .
+
+    COMMA           shift and go to state 42
+    SEMICOLON       reduce using rule 33 (x -> .)
+
+    x                              shift and go to state 83
+
+state 64
+
+    (20) boolfromarith -> arithmeticexpr LT . arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    MINUS           shift and go to state 35
+    LPAREN          shift and go to state 38
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    arithmeticexpr                 shift and go to state 84
+
+state 65
+
+    (23) boolfromarith -> arithmeticexpr COMPAREEQUAL . arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    MINUS           shift and go to state 35
+    LPAREN          shift and go to state 38
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    arithmeticexpr                 shift and go to state 85
+
+state 66
+
+    (19) boolfromarith -> arithmeticexpr GTE . arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    MINUS           shift and go to state 35
+    LPAREN          shift and go to state 38
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    arithmeticexpr                 shift and go to state 86
+
+state 67
+
+    (22) boolfromarith -> arithmeticexpr COMPARENOTEQUAL . arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    MINUS           shift and go to state 35
+    LPAREN          shift and go to state 38
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    arithmeticexpr                 shift and go to state 87
+
+state 68
+
+    (18) boolfromarith -> arithmeticexpr LTE . arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    MINUS           shift and go to state 35
+    LPAREN          shift and go to state 38
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    arithmeticexpr                 shift and go to state 88
+
+state 69
+
+    (21) boolfromarith -> arithmeticexpr GT . arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    MINUS           shift and go to state 35
+    LPAREN          shift and go to state 38
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    arithmeticexpr                 shift and go to state 89
+
+state 70
+
+    (42) arithmeticexpr -> LPAREN arithmeticexpr . RPAREN
+    (37) arithmeticexpr -> arithmeticexpr . PLUS arithmeticexpr
+    (38) arithmeticexpr -> arithmeticexpr . MINUS arithmeticexpr
+    (39) arithmeticexpr -> arithmeticexpr . POINTER arithmeticexpr
+    (40) arithmeticexpr -> arithmeticexpr . DIVIDE arithmeticexpr
+    (18) boolfromarith -> arithmeticexpr . LTE arithmeticexpr
+    (19) boolfromarith -> arithmeticexpr . GTE arithmeticexpr
+    (20) boolfromarith -> arithmeticexpr . LT arithmeticexpr
+    (21) boolfromarith -> arithmeticexpr . GT arithmeticexpr
+    (22) boolfromarith -> arithmeticexpr . COMPARENOTEQUAL arithmeticexpr
+    (23) boolfromarith -> arithmeticexpr . COMPAREEQUAL arithmeticexpr
+
+    RPAREN          shift and go to state 77
+    PLUS            shift and go to state 60
+    MINUS           shift and go to state 58
+    POINTER         shift and go to state 59
+    DIVIDE          shift and go to state 61
+    LTE             shift and go to state 68
+    GTE             shift and go to state 66
+    LT              shift and go to state 64
+    GT              shift and go to state 69
+    COMPARENOTEQUAL shift and go to state 67
+    COMPAREEQUAL    shift and go to state 65
+
+
+state 71
+
+    (16) booleanexpr -> LPAREN booleanexpr . RPAREN
+    (14) booleanexpr -> booleanexpr . OR booleanexpr
+    (15) booleanexpr -> booleanexpr . AND booleanexpr
+
+    RPAREN          shift and go to state 90
+    OR              shift and go to state 74
+    AND             shift and go to state 75
+
+
+state 72
+
+    (7) whileblock -> WHILE LPAREN CONDITION RPAREN . conditionalbody
+    (11) conditionalbody -> . line SEMICOLON
+    (12) conditionalbody -> . LFBRACK lines RFBRACK
+    (25) line -> . INT decllist
+    (26) line -> . assignmentlist
+    (34) assignmentlist -> . assignment
+    (35) assignment -> . NAME ASSIGN arithmeticexpr
+    (36) assignment -> . startwithstar ASSIGN arithmeticexpr
+    (45) startwithstar -> . POINTER startwithany
+
+    LFBRACK         shift and go to state 93
+    INT             shift and go to state 11
+    NAME            shift and go to state 7
+    POINTER         shift and go to state 16
+
+    line                           shift and go to state 91
+    assignmentlist                 shift and go to state 14
+    conditionalbody                shift and go to state 92
+    startwithstar                  shift and go to state 15
+    assignment                     shift and go to state 18
+
+state 73
+
+    (17) booleanexpr -> NEGATION booleanexpr .
+    (14) booleanexpr -> booleanexpr . OR booleanexpr
+    (15) booleanexpr -> booleanexpr . AND booleanexpr
+
+    OR              reduce using rule 17 (booleanexpr -> NEGATION booleanexpr .)
+    AND             reduce using rule 17 (booleanexpr -> NEGATION booleanexpr .)
+    RPAREN          reduce using rule 17 (booleanexpr -> NEGATION booleanexpr .)
+
+  ! OR              [ shift and go to state 74 ]
+  ! AND             [ shift and go to state 75 ]
+
+
+state 74
+
+    (14) booleanexpr -> booleanexpr OR . booleanexpr
+    (14) booleanexpr -> . booleanexpr OR booleanexpr
+    (15) booleanexpr -> . booleanexpr AND booleanexpr
+    (16) booleanexpr -> . LPAREN booleanexpr RPAREN
+    (17) booleanexpr -> . NEGATION booleanexpr
+    (24) booleanexpr -> . boolfromarith
+    (18) boolfromarith -> . arithmeticexpr LTE arithmeticexpr
+    (19) boolfromarith -> . arithmeticexpr GTE arithmeticexpr
+    (20) boolfromarith -> . arithmeticexpr LT arithmeticexpr
+    (21) boolfromarith -> . arithmeticexpr GT arithmeticexpr
+    (22) boolfromarith -> . arithmeticexpr COMPARENOTEQUAL arithmeticexpr
+    (23) boolfromarith -> . arithmeticexpr COMPAREEQUAL arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    LPAREN          shift and go to state 47
+    NEGATION        shift and go to state 49
+    MINUS           shift and go to state 35
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    boolfromarith                  shift and go to state 50
+    booleanexpr                    shift and go to state 94
+    arithmeticexpr                 shift and go to state 46
+
+state 75
+
+    (15) booleanexpr -> booleanexpr AND . booleanexpr
+    (14) booleanexpr -> . booleanexpr OR booleanexpr
+    (15) booleanexpr -> . booleanexpr AND booleanexpr
+    (16) booleanexpr -> . LPAREN booleanexpr RPAREN
+    (17) booleanexpr -> . NEGATION booleanexpr
+    (24) booleanexpr -> . boolfromarith
+    (18) boolfromarith -> . arithmeticexpr LTE arithmeticexpr
+    (19) boolfromarith -> . arithmeticexpr GTE arithmeticexpr
+    (20) boolfromarith -> . arithmeticexpr LT arithmeticexpr
+    (21) boolfromarith -> . arithmeticexpr GT arithmeticexpr
+    (22) boolfromarith -> . arithmeticexpr COMPARENOTEQUAL arithmeticexpr
+    (23) boolfromarith -> . arithmeticexpr COMPAREEQUAL arithmeticexpr
+    (37) arithmeticexpr -> . arithmeticexpr PLUS arithmeticexpr
+    (38) arithmeticexpr -> . arithmeticexpr MINUS arithmeticexpr
+    (39) arithmeticexpr -> . arithmeticexpr POINTER arithmeticexpr
+    (40) arithmeticexpr -> . arithmeticexpr DIVIDE arithmeticexpr
+    (41) arithmeticexpr -> . MINUS arithmeticexpr
+    (42) arithmeticexpr -> . LPAREN arithmeticexpr RPAREN
+    (43) arithmeticexpr -> . NUMBER
+    (44) arithmeticexpr -> . startwithany
+    (46) startwithany -> . POINTER startwithany
+    (47) startwithany -> . AMPERSAND startwithany
+    (48) startwithany -> . NAME
+
+    LPAREN          shift and go to state 47
+    NEGATION        shift and go to state 49
+    MINUS           shift and go to state 35
+    NUMBER          shift and go to state 36
+    POINTER         shift and go to state 30
+    AMPERSAND       shift and go to state 33
+    NAME            shift and go to state 32
+
+    startwithany                   shift and go to state 37
+    boolfromarith                  shift and go to state 50
+    booleanexpr                    shift and go to state 95
+    arithmeticexpr                 shift and go to state 46
+
+state 76
+
+    (6) ifblock -> IF LPAREN CONDITION RPAREN . conditionalbody
+    (8) ifblock -> IF LPAREN CONDITION RPAREN . conditionalbody ELSE ifelsehandler
+    (11) conditionalbody -> . line SEMICOLON
+    (12) conditionalbody -> . LFBRACK lines RFBRACK
+    (25) line -> . INT decllist
+    (26) line -> . assignmentlist
+    (34) assignmentlist -> . assignment
+    (35) assignment -> . NAME ASSIGN arithmeticexpr
+    (36) assignment -> . startwithstar ASSIGN arithmeticexpr
+    (45) startwithstar -> . POINTER startwithany
+
+    LFBRACK         shift and go to state 93
+    INT             shift and go to state 11
+    NAME            shift and go to state 7
+    POINTER         shift and go to state 16
+
+    line                           shift and go to state 91
+    assignmentlist                 shift and go to state 14
+    conditionalbody                shift and go to state 96
+    startwithstar                  shift and go to state 15
+    assignment                     shift and go to state 18
+
+state 77
+
+    (42) arithmeticexpr -> LPAREN arithmeticexpr RPAREN .
+
+    PLUS            reduce using rule 42 (arithmeticexpr -> LPAREN arithmeticexpr RPAREN .)
+    MINUS           reduce using rule 42 (arithmeticexpr -> LPAREN arithmeticexpr RPAREN .)
+    POINTER         reduce using rule 42 (arithmeticexpr -> LPAREN arithmeticexpr RPAREN .)
+    DIVIDE          reduce using rule 42 (arithmeticexpr -> LPAREN arithmeticexpr RPAREN .)
+    SEMICOLON       reduce using rule 42 (arithmeticexpr -> LPAREN arithmeticexpr RPAREN .)
+    LTE             reduce using rule 42 (arithmeticexpr -> LPAREN arithmeticexpr RPAREN .)
+    GTE             reduce using rule 42 (arithmeticexpr -> LPAREN arithmeticexpr RPAREN .)
+    LT              reduce using rule 42 (arithmeticexpr -> LPAREN arithmeticexpr RPAREN .)
+    GT              reduce using rule 42 (arithmeticexpr -> LPAREN arithmeticexpr RPAREN .)
+    COMPARENOTEQUAL reduce using rule 42 (arithmeticexpr -> LPAREN arithmeticexpr RPAREN .)
+    COMPAREEQUAL    reduce using rule 42 (arithmeticexpr -> LPAREN arithmeticexpr RPAREN .)
+    RPAREN          reduce using rule 42 (arithmeticexpr -> LPAREN arithmeticexpr RPAREN .)
+    OR              reduce using rule 42 (arithmeticexpr -> LPAREN arithmeticexpr RPAREN .)
+    AND             reduce using rule 42 (arithmeticexpr -> LPAREN arithmeticexpr RPAREN .)
+
+
+state 78
+
+    (38) arithmeticexpr -> arithmeticexpr MINUS arithmeticexpr .
+    (37) arithmeticexpr -> arithmeticexpr . PLUS arithmeticexpr
+    (38) arithmeticexpr -> arithmeticexpr . MINUS arithmeticexpr
+    (39) arithmeticexpr -> arithmeticexpr . POINTER arithmeticexpr
+    (40) arithmeticexpr -> arithmeticexpr . DIVIDE arithmeticexpr
+
+    PLUS            reduce using rule 38 (arithmeticexpr -> arithmeticexpr MINUS arithmeticexpr .)
+    MINUS           reduce using rule 38 (arithmeticexpr -> arithmeticexpr MINUS arithmeticexpr .)
+    SEMICOLON       reduce using rule 38 (arithmeticexpr -> arithmeticexpr MINUS arithmeticexpr .)
+    LTE             reduce using rule 38 (arithmeticexpr -> arithmeticexpr MINUS arithmeticexpr .)
+    GTE             reduce using rule 38 (arithmeticexpr -> arithmeticexpr MINUS arithmeticexpr .)
+    LT              reduce using rule 38 (arithmeticexpr -> arithmeticexpr MINUS arithmeticexpr .)
+    GT              reduce using rule 38 (arithmeticexpr -> arithmeticexpr MINUS arithmeticexpr .)
+    COMPARENOTEQUAL reduce using rule 38 (arithmeticexpr -> arithmeticexpr MINUS arithmeticexpr .)
+    COMPAREEQUAL    reduce using rule 38 (arithmeticexpr -> arithmeticexpr MINUS arithmeticexpr .)
+    RPAREN          reduce using rule 38 (arithmeticexpr -> arithmeticexpr MINUS arithmeticexpr .)
+    OR              reduce using rule 38 (arithmeticexpr -> arithmeticexpr MINUS arithmeticexpr .)
+    AND             reduce using rule 38 (arithmeticexpr -> arithmeticexpr MINUS arithmeticexpr .)
+    POINTER         shift and go to state 59
+    DIVIDE          shift and go to state 61
+
+  ! POINTER         [ reduce using rule 38 (arithmeticexpr -> arithmeticexpr MINUS arithmeticexpr .) ]
+  ! DIVIDE          [ reduce using rule 38 (arithmeticexpr -> arithmeticexpr MINUS arithmeticexpr .) ]
+  ! PLUS            [ shift and go to state 60 ]
+  ! MINUS           [ shift and go to state 58 ]
+
+
+state 79
+
+    (39) arithmeticexpr -> arithmeticexpr POINTER arithmeticexpr .
+    (37) arithmeticexpr -> arithmeticexpr . PLUS arithmeticexpr
+    (38) arithmeticexpr -> arithmeticexpr . MINUS arithmeticexpr
+    (39) arithmeticexpr -> arithmeticexpr . POINTER arithmeticexpr
+    (40) arithmeticexpr -> arithmeticexpr . DIVIDE arithmeticexpr
+
+    PLUS            reduce using rule 39 (arithmeticexpr -> arithmeticexpr POINTER arithmeticexpr .)
+    MINUS           reduce using rule 39 (arithmeticexpr -> arithmeticexpr POINTER arithmeticexpr .)
+    POINTER         reduce using rule 39 (arithmeticexpr -> arithmeticexpr POINTER arithmeticexpr .)
+    DIVIDE          reduce using rule 39 (arithmeticexpr -> arithmeticexpr POINTER arithmeticexpr .)
+    SEMICOLON       reduce using rule 39 (arithmeticexpr -> arithmeticexpr POINTER arithmeticexpr .)
+    LTE             reduce using rule 39 (arithmeticexpr -> arithmeticexpr POINTER arithmeticexpr .)
+    GTE             reduce using rule 39 (arithmeticexpr -> arithmeticexpr POINTER arithmeticexpr .)
+    LT              reduce using rule 39 (arithmeticexpr -> arithmeticexpr POINTER arithmeticexpr .)
+    GT              reduce using rule 39 (arithmeticexpr -> arithmeticexpr POINTER arithmeticexpr .)
+    COMPARENOTEQUAL reduce using rule 39 (arithmeticexpr -> arithmeticexpr POINTER arithmeticexpr .)
+    COMPAREEQUAL    reduce using rule 39 (arithmeticexpr -> arithmeticexpr POINTER arithmeticexpr .)
+    RPAREN          reduce using rule 39 (arithmeticexpr -> arithmeticexpr POINTER arithmeticexpr .)
+    OR              reduce using rule 39 (arithmeticexpr -> arithmeticexpr POINTER arithmeticexpr .)
+    AND             reduce using rule 39 (arithmeticexpr -> arithmeticexpr POINTER arithmeticexpr .)
+
+  ! PLUS            [ shift and go to state 60 ]
+  ! MINUS           [ shift and go to state 58 ]
+  ! POINTER         [ shift and go to state 59 ]
+  ! DIVIDE          [ shift and go to state 61 ]
+
+
+state 80
+
+    (37) arithmeticexpr -> arithmeticexpr PLUS arithmeticexpr .
+    (37) arithmeticexpr -> arithmeticexpr . PLUS arithmeticexpr
+    (38) arithmeticexpr -> arithmeticexpr . MINUS arithmeticexpr
+    (39) arithmeticexpr -> arithmeticexpr . POINTER arithmeticexpr
+    (40) arithmeticexpr -> arithmeticexpr . DIVIDE arithmeticexpr
+
+    PLUS            reduce using rule 37 (arithmeticexpr -> arithmeticexpr PLUS arithmeticexpr .)
+    MINUS           reduce using rule 37 (arithmeticexpr -> arithmeticexpr PLUS arithmeticexpr .)
+    SEMICOLON       reduce using rule 37 (arithmeticexpr -> arithmeticexpr PLUS arithmeticexpr .)
+    LTE             reduce using rule 37 (arithmeticexpr -> arithmeticexpr PLUS arithmeticexpr .)
+    GTE             reduce using rule 37 (arithmeticexpr -> arithmeticexpr PLUS arithmeticexpr .)
+    LT              reduce using rule 37 (arithmeticexpr -> arithmeticexpr PLUS arithmeticexpr .)
+    GT              reduce using rule 37 (arithmeticexpr -> arithmeticexpr PLUS arithmeticexpr .)
+    COMPARENOTEQUAL reduce using rule 37 (arithmeticexpr -> arithmeticexpr PLUS arithmeticexpr .)
+    COMPAREEQUAL    reduce using rule 37 (arithmeticexpr -> arithmeticexpr PLUS arithmeticexpr .)
+    RPAREN          reduce using rule 37 (arithmeticexpr -> arithmeticexpr PLUS arithmeticexpr .)
+    OR              reduce using rule 37 (arithmeticexpr -> arithmeticexpr PLUS arithmeticexpr .)
+    AND             reduce using rule 37 (arithmeticexpr -> arithmeticexpr PLUS arithmeticexpr .)
+    POINTER         shift and go to state 59
+    DIVIDE          shift and go to state 61
+
+  ! POINTER         [ reduce using rule 37 (arithmeticexpr -> arithmeticexpr PLUS arithmeticexpr .) ]
+  ! DIVIDE          [ reduce using rule 37 (arithmeticexpr -> arithmeticexpr PLUS arithmeticexpr .) ]
+  ! PLUS            [ shift and go to state 60 ]
+  ! MINUS           [ shift and go to state 58 ]
+
+
+state 81
+
+    (40) arithmeticexpr -> arithmeticexpr DIVIDE arithmeticexpr .
+    (37) arithmeticexpr -> arithmeticexpr . PLUS arithmeticexpr
+    (38) arithmeticexpr -> arithmeticexpr . MINUS arithmeticexpr
+    (39) arithmeticexpr -> arithmeticexpr . POINTER arithmeticexpr
+    (40) arithmeticexpr -> arithmeticexpr . DIVIDE arithmeticexpr
+
+    PLUS            reduce using rule 40 (arithmeticexpr -> arithmeticexpr DIVIDE arithmeticexpr .)
+    MINUS           reduce using rule 40 (arithmeticexpr -> arithmeticexpr DIVIDE arithmeticexpr .)
+    POINTER         reduce using rule 40 (arithmeticexpr -> arithmeticexpr DIVIDE arithmeticexpr .)
+    DIVIDE          reduce using rule 40 (arithmeticexpr -> arithmeticexpr DIVIDE arithmeticexpr .)
+    SEMICOLON       reduce using rule 40 (arithmeticexpr -> arithmeticexpr DIVIDE arithmeticexpr .)
+    LTE             reduce using rule 40 (arithmeticexpr -> arithmeticexpr DIVIDE arithmeticexpr .)
+    GTE             reduce using rule 40 (arithmeticexpr -> arithmeticexpr DIVIDE arithmeticexpr .)
+    LT              reduce using rule 40 (arithmeticexpr -> arithmeticexpr DIVIDE arithmeticexpr .)
+    GT              reduce using rule 40 (arithmeticexpr -> arithmeticexpr DIVIDE arithmeticexpr .)
+    COMPARENOTEQUAL reduce using rule 40 (arithmeticexpr -> arithmeticexpr DIVIDE arithmeticexpr .)
+    COMPAREEQUAL    reduce using rule 40 (arithmeticexpr -> arithmeticexpr DIVIDE arithmeticexpr .)
+    RPAREN          reduce using rule 40 (arithmeticexpr -> arithmeticexpr DIVIDE arithmeticexpr .)
+    OR              reduce using rule 40 (arithmeticexpr -> arithmeticexpr DIVIDE arithmeticexpr .)
+    AND             reduce using rule 40 (arithmeticexpr -> arithmeticexpr DIVIDE arithmeticexpr .)
+
+  ! PLUS            [ shift and go to state 60 ]
+  ! MINUS           [ shift and go to state 58 ]
+  ! POINTER         [ shift and go to state 59 ]
+  ! DIVIDE          [ shift and go to state 61 ]
+
+
+state 82
+
+    (30) x -> COMMA pointerdef x .
+
+    SEMICOLON       reduce using rule 30 (x -> COMMA pointerdef x .)
+
+
+state 83
+
+    (32) x -> COMMA NAME x .
+
+    SEMICOLON       reduce using rule 32 (x -> COMMA NAME x .)
+
+
+state 84
+
+    (20) boolfromarith -> arithmeticexpr LT arithmeticexpr .
+    (37) arithmeticexpr -> arithmeticexpr . PLUS arithmeticexpr
+    (38) arithmeticexpr -> arithmeticexpr . MINUS arithmeticexpr
+    (39) arithmeticexpr -> arithmeticexpr . POINTER arithmeticexpr
+    (40) arithmeticexpr -> arithmeticexpr . DIVIDE arithmeticexpr
+
+    OR              reduce using rule 20 (boolfromarith -> arithmeticexpr LT arithmeticexpr .)
+    AND             reduce using rule 20 (boolfromarith -> arithmeticexpr LT arithmeticexpr .)
+    RPAREN          reduce using rule 20 (boolfromarith -> arithmeticexpr LT arithmeticexpr .)
+    PLUS            shift and go to state 60
+    MINUS           shift and go to state 58
+    POINTER         shift and go to state 59
+    DIVIDE          shift and go to state 61
+
+
+state 85
+
+    (23) boolfromarith -> arithmeticexpr COMPAREEQUAL arithmeticexpr .
+    (37) arithmeticexpr -> arithmeticexpr . PLUS arithmeticexpr
+    (38) arithmeticexpr -> arithmeticexpr . MINUS arithmeticexpr
+    (39) arithmeticexpr -> arithmeticexpr . POINTER arithmeticexpr
+    (40) arithmeticexpr -> arithmeticexpr . DIVIDE arithmeticexpr
+
+    OR              reduce using rule 23 (boolfromarith -> arithmeticexpr COMPAREEQUAL arithmeticexpr .)
+    AND             reduce using rule 23 (boolfromarith -> arithmeticexpr COMPAREEQUAL arithmeticexpr .)
+    RPAREN          reduce using rule 23 (boolfromarith -> arithmeticexpr COMPAREEQUAL arithmeticexpr .)
+    PLUS            shift and go to state 60
+    MINUS           shift and go to state 58
+    POINTER         shift and go to state 59
+    DIVIDE          shift and go to state 61
+
+
+state 86
+
+    (19) boolfromarith -> arithmeticexpr GTE arithmeticexpr .
+    (37) arithmeticexpr -> arithmeticexpr . PLUS arithmeticexpr
+    (38) arithmeticexpr -> arithmeticexpr . MINUS arithmeticexpr
+    (39) arithmeticexpr -> arithmeticexpr . POINTER arithmeticexpr
+    (40) arithmeticexpr -> arithmeticexpr . DIVIDE arithmeticexpr
+
+    OR              reduce using rule 19 (boolfromarith -> arithmeticexpr GTE arithmeticexpr .)
+    AND             reduce using rule 19 (boolfromarith -> arithmeticexpr GTE arithmeticexpr .)
+    RPAREN          reduce using rule 19 (boolfromarith -> arithmeticexpr GTE arithmeticexpr .)
+    PLUS            shift and go to state 60
+    MINUS           shift and go to state 58
+    POINTER         shift and go to state 59
+    DIVIDE          shift and go to state 61
+
+
+state 87
+
+    (22) boolfromarith -> arithmeticexpr COMPARENOTEQUAL arithmeticexpr .
+    (37) arithmeticexpr -> arithmeticexpr . PLUS arithmeticexpr
+    (38) arithmeticexpr -> arithmeticexpr . MINUS arithmeticexpr
+    (39) arithmeticexpr -> arithmeticexpr . POINTER arithmeticexpr
+    (40) arithmeticexpr -> arithmeticexpr . DIVIDE arithmeticexpr
+
+    OR              reduce using rule 22 (boolfromarith -> arithmeticexpr COMPARENOTEQUAL arithmeticexpr .)
+    AND             reduce using rule 22 (boolfromarith -> arithmeticexpr COMPARENOTEQUAL arithmeticexpr .)
+    RPAREN          reduce using rule 22 (boolfromarith -> arithmeticexpr COMPARENOTEQUAL arithmeticexpr .)
+    PLUS            shift and go to state 60
+    MINUS           shift and go to state 58
+    POINTER         shift and go to state 59
+    DIVIDE          shift and go to state 61
+
+
+state 88
+
+    (18) boolfromarith -> arithmeticexpr LTE arithmeticexpr .
+    (37) arithmeticexpr -> arithmeticexpr . PLUS arithmeticexpr
+    (38) arithmeticexpr -> arithmeticexpr . MINUS arithmeticexpr
+    (39) arithmeticexpr -> arithmeticexpr . POINTER arithmeticexpr
+    (40) arithmeticexpr -> arithmeticexpr . DIVIDE arithmeticexpr
+
+    OR              reduce using rule 18 (boolfromarith -> arithmeticexpr LTE arithmeticexpr .)
+    AND             reduce using rule 18 (boolfromarith -> arithmeticexpr LTE arithmeticexpr .)
+    RPAREN          reduce using rule 18 (boolfromarith -> arithmeticexpr LTE arithmeticexpr .)
+    PLUS            shift and go to state 60
+    MINUS           shift and go to state 58
+    POINTER         shift and go to state 59
+    DIVIDE          shift and go to state 61
+
+
+state 89
+
+    (21) boolfromarith -> arithmeticexpr GT arithmeticexpr .
+    (37) arithmeticexpr -> arithmeticexpr . PLUS arithmeticexpr
+    (38) arithmeticexpr -> arithmeticexpr . MINUS arithmeticexpr
+    (39) arithmeticexpr -> arithmeticexpr . POINTER arithmeticexpr
+    (40) arithmeticexpr -> arithmeticexpr . DIVIDE arithmeticexpr
+
+    OR              reduce using rule 21 (boolfromarith -> arithmeticexpr GT arithmeticexpr .)
+    AND             reduce using rule 21 (boolfromarith -> arithmeticexpr GT arithmeticexpr .)
+    RPAREN          reduce using rule 21 (boolfromarith -> arithmeticexpr GT arithmeticexpr .)
+    PLUS            shift and go to state 60
+    MINUS           shift and go to state 58
+    POINTER         shift and go to state 59
+    DIVIDE          shift and go to state 61
+
+
+state 90
+
+    (16) booleanexpr -> LPAREN booleanexpr RPAREN .
+
+    OR              reduce using rule 16 (booleanexpr -> LPAREN booleanexpr RPAREN .)
+    AND             reduce using rule 16 (booleanexpr -> LPAREN booleanexpr RPAREN .)
+    RPAREN          reduce using rule 16 (booleanexpr -> LPAREN booleanexpr RPAREN .)
+
+
+state 91
+
+    (11) conditionalbody -> line . SEMICOLON
+
+    SEMICOLON       shift and go to state 97
+
+
+state 92
+
+    (7) whileblock -> WHILE LPAREN CONDITION RPAREN conditionalbody .
+
+    INT             reduce using rule 7 (whileblock -> WHILE LPAREN CONDITION RPAREN conditionalbody .)
+    IF              reduce using rule 7 (whileblock -> WHILE LPAREN CONDITION RPAREN conditionalbody .)
+    WHILE           reduce using rule 7 (whileblock -> WHILE LPAREN CONDITION RPAREN conditionalbody .)
+    NAME            reduce using rule 7 (whileblock -> WHILE LPAREN CONDITION RPAREN conditionalbody .)
+    POINTER         reduce using rule 7 (whileblock -> WHILE LPAREN CONDITION RPAREN conditionalbody .)
+    RFBRACK         reduce using rule 7 (whileblock -> WHILE LPAREN CONDITION RPAREN conditionalbody .)
+
+
+state 93
+
+    (12) conditionalbody -> LFBRACK . lines RFBRACK
+    (2) lines -> . line SEMICOLON lines
+    (3) lines -> .
+    (4) lines -> . ifblock lines
+    (5) lines -> . whileblock lines
+    (25) line -> . INT decllist
+    (26) line -> . assignmentlist
+    (6) ifblock -> . IF LPAREN CONDITION RPAREN conditionalbody
+    (8) ifblock -> . IF LPAREN CONDITION RPAREN conditionalbody ELSE ifelsehandler
+    (7) whileblock -> . WHILE LPAREN CONDITION RPAREN conditionalbody
+    (34) assignmentlist -> . assignment
+    (35) assignment -> . NAME ASSIGN arithmeticexpr
+    (36) assignment -> . startwithstar ASSIGN arithmeticexpr
+    (45) startwithstar -> . POINTER startwithany
+
+    RFBRACK         reduce using rule 3 (lines -> .)
+    INT             shift and go to state 11
+    IF              shift and go to state 17
+    WHILE           shift and go to state 13
+    NAME            shift and go to state 7
+    POINTER         shift and go to state 16
+
+    assignmentlist                 shift and go to state 14
+    lines                          shift and go to state 98
+    startwithstar                  shift and go to state 15
+    whileblock                     shift and go to state 12
+    assignment                     shift and go to state 18
+    ifblock                        shift and go to state 9
+    line                           shift and go to state 10
+
+state 94
+
+    (14) booleanexpr -> booleanexpr OR booleanexpr .
+    (14) booleanexpr -> booleanexpr . OR booleanexpr
+    (15) booleanexpr -> booleanexpr . AND booleanexpr
+
+    OR              reduce using rule 14 (booleanexpr -> booleanexpr OR booleanexpr .)
+    AND             reduce using rule 14 (booleanexpr -> booleanexpr OR booleanexpr .)
+    RPAREN          reduce using rule 14 (booleanexpr -> booleanexpr OR booleanexpr .)
+
+  ! OR              [ shift and go to state 74 ]
+  ! AND             [ shift and go to state 75 ]
+
+
+state 95
+
+    (15) booleanexpr -> booleanexpr AND booleanexpr .
+    (14) booleanexpr -> booleanexpr . OR booleanexpr
+    (15) booleanexpr -> booleanexpr . AND booleanexpr
+
+    OR              reduce using rule 15 (booleanexpr -> booleanexpr AND booleanexpr .)
+    AND             reduce using rule 15 (booleanexpr -> booleanexpr AND booleanexpr .)
+    RPAREN          reduce using rule 15 (booleanexpr -> booleanexpr AND booleanexpr .)
+
+  ! OR              [ shift and go to state 74 ]
+  ! AND             [ shift and go to state 75 ]
+
+
+state 96
+
+    (6) ifblock -> IF LPAREN CONDITION RPAREN conditionalbody .
+    (8) ifblock -> IF LPAREN CONDITION RPAREN conditionalbody . ELSE ifelsehandler
+
+    INT             reduce using rule 6 (ifblock -> IF LPAREN CONDITION RPAREN conditionalbody .)
+    IF              reduce using rule 6 (ifblock -> IF LPAREN CONDITION RPAREN conditionalbody .)
+    WHILE           reduce using rule 6 (ifblock -> IF LPAREN CONDITION RPAREN conditionalbody .)
+    NAME            reduce using rule 6 (ifblock -> IF LPAREN CONDITION RPAREN conditionalbody .)
+    POINTER         reduce using rule 6 (ifblock -> IF LPAREN CONDITION RPAREN conditionalbody .)
+    RFBRACK         reduce using rule 6 (ifblock -> IF LPAREN CONDITION RPAREN conditionalbody .)
+    ELSE            shift and go to state 99
+
+
+state 97
+
+    (11) conditionalbody -> line SEMICOLON .
+
+    ELSE            reduce using rule 11 (conditionalbody -> line SEMICOLON .)
+    INT             reduce using rule 11 (conditionalbody -> line SEMICOLON .)
+    IF              reduce using rule 11 (conditionalbody -> line SEMICOLON .)
+    WHILE           reduce using rule 11 (conditionalbody -> line SEMICOLON .)
+    NAME            reduce using rule 11 (conditionalbody -> line SEMICOLON .)
+    POINTER         reduce using rule 11 (conditionalbody -> line SEMICOLON .)
+    RFBRACK         reduce using rule 11 (conditionalbody -> line SEMICOLON .)
+
+
+state 98
+
+    (12) conditionalbody -> LFBRACK lines . RFBRACK
+
+    RFBRACK         shift and go to state 100
+
+
+state 99
+
+    (8) ifblock -> IF LPAREN CONDITION RPAREN conditionalbody ELSE . ifelsehandler
+    (9) ifelsehandler -> . conditionalbody
+    (10) ifelsehandler -> . ifblock
+    (11) conditionalbody -> . line SEMICOLON
+    (12) conditionalbody -> . LFBRACK lines RFBRACK
+    (6) ifblock -> . IF LPAREN CONDITION RPAREN conditionalbody
+    (8) ifblock -> . IF LPAREN CONDITION RPAREN conditionalbody ELSE ifelsehandler
+    (25) line -> . INT decllist
+    (26) line -> . assignmentlist
+    (34) assignmentlist -> . assignment
+    (35) assignment -> . NAME ASSIGN arithmeticexpr
+    (36) assignment -> . startwithstar ASSIGN arithmeticexpr
+    (45) startwithstar -> . POINTER startwithany
+
+    LFBRACK         shift and go to state 93
+    IF              shift and go to state 17
+    INT             shift and go to state 11
+    NAME            shift and go to state 7
+    POINTER         shift and go to state 16
+
+    assignmentlist                 shift and go to state 14
+    startwithstar                  shift and go to state 15
+    ifblock                        shift and go to state 101
+    line                           shift and go to state 91
+    conditionalbody                shift and go to state 103
+    ifelsehandler                  shift and go to state 102
+    assignment                     shift and go to state 18
+
+state 100
+
+    (12) conditionalbody -> LFBRACK lines RFBRACK .
+
+    ELSE            reduce using rule 12 (conditionalbody -> LFBRACK lines RFBRACK .)
+    INT             reduce using rule 12 (conditionalbody -> LFBRACK lines RFBRACK .)
+    IF              reduce using rule 12 (conditionalbody -> LFBRACK lines RFBRACK .)
+    WHILE           reduce using rule 12 (conditionalbody -> LFBRACK lines RFBRACK .)
+    NAME            reduce using rule 12 (conditionalbody -> LFBRACK lines RFBRACK .)
+    POINTER         reduce using rule 12 (conditionalbody -> LFBRACK lines RFBRACK .)
+    RFBRACK         reduce using rule 12 (conditionalbody -> LFBRACK lines RFBRACK .)
+
+
+state 101
+
+    (10) ifelsehandler -> ifblock .
+
+    INT             reduce using rule 10 (ifelsehandler -> ifblock .)
+    IF              reduce using rule 10 (ifelsehandler -> ifblock .)
+    WHILE           reduce using rule 10 (ifelsehandler -> ifblock .)
+    NAME            reduce using rule 10 (ifelsehandler -> ifblock .)
+    POINTER         reduce using rule 10 (ifelsehandler -> ifblock .)
+    RFBRACK         reduce using rule 10 (ifelsehandler -> ifblock .)
+
+
+state 102
+
+    (8) ifblock -> IF LPAREN CONDITION RPAREN conditionalbody ELSE ifelsehandler .
+
+    INT             reduce using rule 8 (ifblock -> IF LPAREN CONDITION RPAREN conditionalbody ELSE ifelsehandler .)
+    IF              reduce using rule 8 (ifblock -> IF LPAREN CONDITION RPAREN conditionalbody ELSE ifelsehandler .)
+    WHILE           reduce using rule 8 (ifblock -> IF LPAREN CONDITION RPAREN conditionalbody ELSE ifelsehandler .)
+    NAME            reduce using rule 8 (ifblock -> IF LPAREN CONDITION RPAREN conditionalbody ELSE ifelsehandler .)
+    POINTER         reduce using rule 8 (ifblock -> IF LPAREN CONDITION RPAREN conditionalbody ELSE ifelsehandler .)
+    RFBRACK         reduce using rule 8 (ifblock -> IF LPAREN CONDITION RPAREN conditionalbody ELSE ifelsehandler .)
+
+
+state 103
+
+    (9) ifelsehandler -> conditionalbody .
+
+    INT             reduce using rule 9 (ifelsehandler -> conditionalbody .)
+    IF              reduce using rule 9 (ifelsehandler -> conditionalbody .)
+    WHILE           reduce using rule 9 (ifelsehandler -> conditionalbody .)
+    NAME            reduce using rule 9 (ifelsehandler -> conditionalbody .)
+    POINTER         reduce using rule 9 (ifelsehandler -> conditionalbody .)
+    RFBRACK         reduce using rule 9 (ifelsehandler -> conditionalbody .)
+

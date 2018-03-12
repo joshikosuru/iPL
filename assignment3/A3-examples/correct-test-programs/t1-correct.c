@@ -5,8 +5,10 @@ void main()
         a = &e;
         b = &f;
 
-	if (*a >= - *b && f > 5)
+	if (*a >= - *b && -(*a + *b) > 5)
+	{
 		*a = *a+1;
-	else
+		if(*a >4)
 		*b = *b+1;
+	}
 }

@@ -1,0 +1,24 @@
+
+<bb 1>
+asgnstatement
+asgnstatement
+goto <bb 2>
+
+<bb 2>
+if(ifcondition) goto <bb 3>
+else goto <bb 6>
+
+<bb 3>
+asgnstatement
+goto <bb 4>
+
+<bb 4>
+if(ifcondition) goto <bb 5>
+else goto <bb 6>
+
+<bb 5>
+asgnstatement
+goto <bb 6>
+
+<bb 6>
+End

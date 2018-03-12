@@ -1,0 +1,114 @@
+
+
+
+
+ASGN
+(
+	VAR(a)
+	,
+	ADDR
+	(
+		VAR(e)
+	)
+)
+ASGN
+(
+	VAR(b)
+	,
+	ADDR
+	(
+		VAR(f)
+	)
+)
+IF
+(
+	AND
+	(
+		GE
+		(
+			DEREF
+			(
+				VAR(a)
+			)
+			,
+			UMINUS
+			(
+				DEREF
+				(
+					VAR(b)
+				)
+			)
+		)
+		,
+		GT
+		(
+			UMINUS
+			(
+				PLUS
+				(
+					DEREF
+					(
+						VAR(a)
+					)
+					,
+					DEREF
+					(
+						VAR(b)
+					)
+				)
+			)
+			,
+			CONST(5)
+		)
+	)
+	,
+	ASGN
+	(
+		DEREF
+		(
+			VAR(a)
+		)
+		,
+		PLUS
+		(
+			DEREF
+			(
+				VAR(a)
+			)
+			,
+			CONST(1)
+		)
+	)
+	IF
+	(
+		GT
+		(
+			DEREF
+			(
+				VAR(a)
+			)
+			,
+			CONST(4)
+		)
+		,
+		ASGN
+		(
+			DEREF
+			(
+				VAR(b)
+			)
+			,
+			PLUS
+			(
+				DEREF
+				(
+					VAR(b)
+				)
+				,
+				CONST(1)
+			)
+		)
+
+	)
+
+)

@@ -4,7 +4,7 @@ import sys
 import ply.lex as lex
 import ply.yacc as yacc
 
-from classes import Tree
+from classes import Tree,giveCfgFile
 
 tokens = (
 
@@ -463,7 +463,7 @@ def p_error(p):
 
 
 def process(data):	
-	global file, rootList, noOfScalarDecl, noOfPointerDecl, noOfAssignDecl
+	global file, rootList, noOfScalarDecl, noOfPointerDecl, noOfAssignDecl,cfg_file
 	lex.lex()
 	yacc.yacc()
 	yacc.parse(data)
@@ -471,6 +471,9 @@ def process(data):
 	for x in rootList:
 		x.giveOutputFile(0, file)
 	file.close()
+	cfg_file = open(cfg_file,"w")
+	giveCfgFile(rootList,cfg_file)
+	cfg_file.close()
 	print("Successfully Parsed")
 	# print(noOfScalarDecl)
 	# print(noOfPointerDecl)
@@ -485,4 +488,5 @@ if __name__ == "__main__":
 	with open (sys.argv[1], "r") as myfile:
 		data = myfile.read()
 		file = "Parser_ast_"+sys.argv[1]+".txt"
+		cfg_file = "cfg_file"+sys.argv[1]+".txt"
 	process(data)
