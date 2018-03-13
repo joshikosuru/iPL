@@ -15,11 +15,10 @@ void main()
    if(*f1 != 0)
    {
      if(*f2 != 0)
-     {
         *iftmp0 = 1;
-	if (*f2 == 1)
+   
+     else
         *iftmp0 = 0;
-   	}
    }
    
    else
