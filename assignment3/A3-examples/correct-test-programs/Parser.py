@@ -488,6 +488,6 @@ if __name__ == "__main__":
 	rootList = []
 	with open (sys.argv[1], "r") as myfile:
 		data = myfile.read()
-		file = "Parser_ast_"+sys.argv[1]+".txt"
-		cfg_file = "cfg_file"+sys.argv[1]+".txt"
+		file = sys.argv[1]+".ast"
+		cfg_file = sys.argv[1]+".cfg"
 	process(data)

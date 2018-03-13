@@ -1,4 +1,3 @@
-
 binaryOperators = ["LE", "GE", "LT", "GT", "NE", "EQ", "OR", "AND", "PLUS", "MINUS", "MUL", "DIV", "ASGN"]
 unaryOperators = ["VAR", "ADDR", "UMINUS", "CONST", "DEREF", "NOT"]
 binaryOpMap = {
@@ -28,6 +27,7 @@ unaryOpMap = {
 
 
 
+
 class Tree(object):
 	def __init__(self):
 		self.left = None
@@ -37,7 +37,7 @@ class Tree(object):
 	def __init__(self, left, right, data):
 		self.left = left
 		self.right = right
-		self.data = data
+		self.data = data		
 
 	def giveOutputFile(self, level, file):
 
@@ -54,7 +54,7 @@ class Tree(object):
 			file.write('\t'*level+'IF'+'\n')
 			file.write('\t'*level+'(\n')
 			(self.left).giveOutputFile(level+1,file)
-
+			
 			for item in self.right:
 				file.write('\t'*(level+1)+',\n')
 				for asgn in item:
@@ -64,7 +64,7 @@ class Tree(object):
 			file.write('\t'*level+')\n')
 		elif(self.data == 'VAR' or self.data == 'CONST'):
 			file.write('\t'*level+self.data+'('+str(self.left)+')\n')
-		else:
+		else:	
 			file.write('\t'*level+self.data+'\n')
 			file.write('\t'*level+'(\n')
 			(self.left).giveOutputFile(level+1, file)
@@ -84,7 +84,7 @@ class Tree(object):
 			returnblock.append(block1)
 
 			block2 = []
-			block2num = 3
+			block2num = 2
 			for item in self.right:
 				blocklist = item.giveBlocks()
 				if blocklist[0]:
@@ -93,10 +93,11 @@ class Tree(object):
 					if len(block2)==0:
 						block2=[]
 					else:
-						block2.append(block2num)
+						block2.append(block2num+1)
 						block2.append('GOTO')
 						returnblock.append(block2)
 						block2 = []
+						block2num += 1
 
 					for some_item in blocklist[1]:
 						a= len(some_item)
@@ -108,10 +109,10 @@ class Tree(object):
 						else:
 							continue
 						returnblock.append(some_item)
-					block2num = len(returnblock) + 2
+					block2num = len(returnblock) + 1
 					# block2.append(item)
 			if len(block2)!= 0:
-				block2.append(block2num)
+				block2.append(block2num+1)
 				block2.append('GOTO')
 				returnblock.append(block2)
 
@@ -127,7 +128,7 @@ class Tree(object):
 			returnblock.append(block1)
 
 			block2 = []
-			block2num = 3
+			block2num = 2
 			for item in self.right:
 				blocklist = item.giveBlocks()
 				if blocklist[0]:
@@ -136,10 +137,11 @@ class Tree(object):
 					if len(block2)==0:
 						block2=[]
 					else:
-						block2.append(block2num)
+						block2.append(block2num+1)
 						block2.append('GOTO')
 						returnblock.append(block2)
 						block2 = []
+						block2num += 1
 
 					for some_item in blocklist[1]:
 						a= len(some_item)
@@ -151,7 +153,7 @@ class Tree(object):
 						else:
 							continue
 						returnblock.append(some_item)
-					block2num = len(returnblock) + 2
+					block2num = len(returnblock) + 1
 					# block2.append(item)
 			if len(block2)!= 0:
 				block2.append(1)
@@ -187,7 +189,7 @@ class Tree(object):
 			returnblock.append(block1)
 
 			block2 = []
-			block2num = 3
+			block2num = 2
 			for item in self.right[0]:
 				blocklist = item.giveBlocks()
 				if blocklist[0]:
@@ -196,10 +198,11 @@ class Tree(object):
 					if len(block2)==0:
 						block2=[]
 					else:
-						block2.append(block2num)
+						block2.append(block2num+1)
 						block2.append('GOTO')
 						returnblock.append(block2)
 						block2 = []
+						block2num += 1
 
 					for some_item in blocklist[1]:
 						a= len(some_item)
@@ -211,18 +214,23 @@ class Tree(object):
 						else:
 							continue
 						returnblock.append(some_item)
-					block2num = len(returnblock) + 2
+					block2num = len(returnblock) + 1
 					# block2.append(item)
 			if len(block2)!= 0:
-				block2.append(block2num)
+				block2.append(block2num+1)
 				block2.append('GOTO')
 				returnblock.append(block2)
 
 			b = len(block1)
-			returnblock[0][b-2] = block2num
+			returnblock[0][b-2] = len(returnblock) + 1
+			
+			id_we_put = len(returnblock) + 1
 
+			if_end_id = len(returnblock) 
+
+			block2num = id_we_put 
 			block2 = []
-			block2num += 1
+
 			for item in self.right[1]:
 				blocklist = item.giveBlocks()
 				if blocklist[0]:
@@ -231,29 +239,44 @@ class Tree(object):
 					if(len(block2)==0):
 						block2=[]
 					else:
-						block2.append(block2num)
+						block2.append(block2num+1)
 						block2.append('GOTO')
 						returnblock.append(block2)
 						block2 = []
+						block2num += 1
 
 					for some_item in blocklist[1]:
 						a= len(some_item)
 						if(some_item[a-1]== 'IF'):
-							some_item[a-2] += block2num -1
-							some_item[a-3] += block2num-1
+							some_item[a-2] += block2num - 1 
+							some_item[a-3] += block2num - 1
 						elif some_item[a-1] == 'GOTO':
-							some_item[a-2] += block2num-1
+							some_item[a-2] += block2num - 1
 						else:
 							continue
 						returnblock.append(some_item)
-					block2num = len(returnblock) + 2
+					block2num = len(returnblock) + 1
 			if len(block2)!= 0:
-				block2.append(block2num)
+				block2.append(block2num+1)
 				block2.append('GOTO')
 				returnblock.append(block2)
 
 			block3 = ['END']
 			returnblock.append(block3)
+
+			for i in range(1,if_end_id):
+				c= returnblock[i]
+				if c[len(c)-1] == 'IF':
+
+					if c[len(c) - 2] == id_we_put:
+						returnblock[i][len(c)-2] = len(returnblock)
+					if c[len(c)-3] == id_we_put:
+						returnblock[i][len(c)-3] = len(returnblock)
+
+				else:
+					if c[len(c)-2] == id_we_put:
+						returnblock[i][len(c)-2] = len(returnblock)
+
 			return [False,returnblock]
 		else:
 			return [True,self] # null list is of temp variables / statements
@@ -308,3 +331,5 @@ def giveCfgFile(rootlist,file):
 			file.write("goto <bb "+str(a[len(a)-2]-1)+">\n")
 		else:
 			file.write("End\n")
+
+		
