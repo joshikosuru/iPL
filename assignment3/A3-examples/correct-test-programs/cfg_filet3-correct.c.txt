@@ -1,8 +1,0 @@
-
-<bb 1>
-year = &x
-cntr = &y
-*year = 1990
-goto <bb 2>
-
-<bb 2>
