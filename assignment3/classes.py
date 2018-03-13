@@ -1,5 +1,5 @@
 
-binaryOperators = ["LE", "GE", "LT", "GT", "NE", "EQ", "OR", "AND", "PLUS", "MINUS", "POINTER", "DIVIDE", "ASGN"]
+binaryOperators = ["LE", "GE", "LT", "GT", "NE", "EQ", "OR", "AND", "PLUS", "MINUS", "MUL", "DIV", "ASGN"]
 unaryOperators = ["VAR", "ADDR", "UMINUS", "CONST", "DEREF", "NOT"]
 binaryOpMap = {
 	"LE" : "<=",
@@ -12,8 +12,8 @@ binaryOpMap = {
 	"AND" : "&&",
 	"PLUS" : "+",
 	"MINUS" : "-",
-	"POINTER" : "*",
-	"DIVIDE" : "/",
+	"MUL" : "*",
+	"DIV" : "/",
 	"ASGN" : "="
 }
 
@@ -37,7 +37,7 @@ class Tree(object):
 	def __init__(self, left, right, data):
 		self.left = left
 		self.right = right
-		self.data = data		
+		self.data = data
 
 	def giveOutputFile(self, level, file):
 
@@ -54,7 +54,7 @@ class Tree(object):
 			file.write('\t'*level+'IF'+'\n')
 			file.write('\t'*level+'(\n')
 			(self.left).giveOutputFile(level+1,file)
-			
+
 			for item in self.right:
 				file.write('\t'*(level+1)+',\n')
 				for asgn in item:
@@ -64,7 +64,7 @@ class Tree(object):
 			file.write('\t'*level+')\n')
 		elif(self.data == 'VAR' or self.data == 'CONST'):
 			file.write('\t'*level+self.data+'('+str(self.left)+')\n')
-		else:	
+		else:
 			file.write('\t'*level+self.data+'\n')
 			file.write('\t'*level+'(\n')
 			(self.left).giveOutputFile(level+1, file)
@@ -78,8 +78,8 @@ class Tree(object):
 	def giveBlocks(self):
 
 		if (self.data ==  'IF'):
-			
-			block1 = ['ifcondition',2,3,'IF'] # GRAMMAR HAS TO BE WRITTEN
+
+			block1 = [self.left,2,3,'IF'] # GRAMMAR HAS TO BE WRITTEN
 			returnblock = []
 			returnblock.append(block1)
 
@@ -122,7 +122,7 @@ class Tree(object):
 			return [False,returnblock]
 
 		elif (self.data == 'WHILE'):
-			block1 = ['ifcondition',2,3,'IF'] # GRAMMAR HAS TO BE WRITTEN
+			block1 = [self.left,2,3,'IF'] # GRAMMAR HAS TO BE WRITTEN
 			returnblock = []
 			returnblock.append(block1)
 
@@ -182,7 +182,7 @@ class Tree(object):
 
 
 		elif (self.data == 'IFELSE'):
-			block1 = ['ifcondition',2,3,'IF'] # GRAMMAR HAS TO BE WRITTEN
+			block1 = [self.left,2,3,'IF'] # GRAMMAR HAS TO BE WRITTEN
 			returnblock = []
 			returnblock.append(block1)
 
@@ -220,7 +220,7 @@ class Tree(object):
 
 			b = len(block1)
 			returnblock[0][b-2] = block2num
-			
+
 			block2 = []
 			block2num += 1
 			for item in self.right[1]:
@@ -239,7 +239,7 @@ class Tree(object):
 					for some_item in blocklist[1]:
 						a= len(some_item)
 						if(some_item[a-1]== 'IF'):
-							some_item[a-2] += block2num -1 
+							some_item[a-2] += block2num -1
 							some_item[a-3] += block2num-1
 						elif some_item[a-1] == 'GOTO':
 							some_item[a-2] += block2num-1
@@ -256,7 +256,7 @@ class Tree(object):
 			returnblock.append(block3)
 			return [False,returnblock]
 		else:
-			return [True,'asgnstatement'] # null list is of temp variables / statements
+			return [True,self] # null list is of temp variables / statements
 
 	def expand(self, counter, lis):
 		if(self.data == "ASGN"):
@@ -282,28 +282,29 @@ class Tree(object):
 			var = unaryOpMap[self.data]+left
 			return var, counter, lis
 		elif(self.data == "CONST" or self.data == "VAR"):
-			return self.left, counter, lis
+			return str(self.left), counter, lis
 
 
 def giveCfgFile(rootlist,file):
 	x = Tree(True,rootlist,'IF')
 	blocks = x.giveBlocks()
 	blocks = blocks[1]
+	temp = 0
 	for i in range(1,len(blocks)):
 		file.write("\n<bb "+str(i)+">\n")
 
 		a = blocks[i]
 		if a[len(a)-1] == 'IF':
-
-			file.write("if("+a[0]+") goto <bb "+str(a[1]-1)+">\n")
+			var,temp,lis = a[0].expand(temp,"")
+			file.write(lis)
+			file.write("if("+var+") goto <bb "+str(a[1]-1)+">\n")
 			file.write("else goto <bb "+str(a[2]-1)+">\n")
 
 		elif a[len(a)-1] == 'GOTO':
 
 			for j in range(0,len(a)-2):
-				file.write(a[j]+"\n")
+				var,temp,lis = a[j].expand(temp,"")
+				file.write(lis)
 			file.write("goto <bb "+str(a[len(a)-2]-1)+">\n")
 		else:
 			file.write("End\n")
-
-		
