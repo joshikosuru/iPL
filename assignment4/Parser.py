@@ -19,6 +19,7 @@ tokens = (
 	# REMAINING TOKENS HERE
 	'NAME', 
 	'NUMBER',
+	'FLOATNUM',
 	'POINTER', 
 	'ASSIGN', 
 	'COMMA', 
@@ -59,6 +60,15 @@ def t_NUMBER(t):
 	except ValueError:
 		print("Integer value too large %d", t.value)
 		t.value = 0
+	return t
+
+def t_FLOATNUM(t):
+	r'[0-9]+\.[0-9]+'
+	try:
+		t.value = float(t.value)
+	except ValueError:
+		print("Float value too large %f", t.value)
+		t.value = 0.0
 	return t
 
 def t_NAME(t):
