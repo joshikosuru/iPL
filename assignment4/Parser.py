@@ -10,11 +10,13 @@ tokens = (
 
 	# TOKENS FOR RESERVED KEYWORDS HERE
 	'INT',
+	'FLOAT',
 	'VOID',
 	'MAIN',
 	'IF',
 	'WHILE',
 	'ELSE',
+	'RETURN',
 
 	# REMAINING TOKENS HERE
 	'NAME', 
@@ -47,11 +49,22 @@ tokens = (
 reserved_words = {
 	'int' : 'INT',
 	'void' : 'VOID',
+	'float': 'FLOAT',
 	'main' : 'MAIN',
 	'if' : 	'IF',
 	'while' : 'WHILE',
-	'else' : 'ELSE'
+	'else' : 'ELSE',
+	'return': 'RETURN'
 }
+
+def t_FLOATNUM(t):
+	r'\d+\.\d+'
+	try:
+		t.value = float(t.value)
+	except ValueError:
+		print("Float value too large %f", t.value)
+		t.value = 0.0
+	return t
 
 def t_NUMBER(t):
 	r'\d+'
@@ -62,15 +75,6 @@ def t_NUMBER(t):
 		t.value = 0
 	return t
 
-def t_FLOATNUM(t):
-	r'[0-9]+\.[0-9]+'
-	try:
-		t.value = float(t.value)
-	except ValueError:
-		print("Float value too large %f", t.value)
-		t.value = 0.0
-	return t
-
 def t_NAME(t):
 	r'[a-zA-Z_][a-zA-Z0-9_]*'
 	if t.value in reserved_words:
@@ -78,7 +82,7 @@ def t_NAME(t):
 	return t
 
 def t_error(t):
-	print("Syntax Error")
+	print("Lexical Error at "+str(t.value))
 	sys.exit()
 	t.lexer.skip(1)
 
@@ -122,7 +126,66 @@ precedence = (
 ################ INITIAL READING INTO void main(){ 'code' }  ##############
 def p_statement_INIT(p):
 	"""
-	statement : VOID MAIN LPAREN RPAREN LFBRACK lines RFBRACK
+	statement : declarations functionblocks
+	"""
+
+def p_declarations_varfunc(p):
+	"""
+	declarations : declarations vardecl SEMICOLON 
+				 | declarations funcdecl SEMICOLON 
+				 | 
+	"""
+
+def p_vardecl_end(p):
+	"""
+	vardecl : type decllist
+	"""
+
+def p_funcdecl_end(p):
+	"""
+	funcdecl : type pointerdef LPAREN paramlist RPAREN
+	         | type NAME LPAREN paramlist RPAREN
+	"""
+
+def p_paramlist_emptyhandle(p):
+	"""
+	paramlist : paramlistnotempty
+			  | 
+	"""
+
+def p_paramlistnotempty_C(p):
+	"""
+	paramlistnotempty : type startwithany C
+	"""
+
+def p_C_end(p):
+	"""
+	C : COMMA paramlistnotempty
+	  |  
+	"""
+
+def p_functionblocks_eps(p):
+	"""
+	functionblocks : functionblock functionblocks
+				   | 
+	"""
+
+def p_functionblock_handle(p):
+	"""
+	functionblock : type pointerdef LPAREN paramlist RPAREN LFBRACK lines RFBRACK
+				  | type NAME LPAREN paramlist RPAREN LFBRACK lines RFBRACK
+				  | mainblock
+	"""
+
+def p_type_end(p):
+	"""
+	type : INT
+		 | FLOAT
+	"""
+
+def p_mainblock_INIT(p):
+	"""
+	mainblock : VOID MAIN LPAREN RPAREN LFBRACK lines RFBRACK
 	"""
 	global rootList
 	for line in p[6]:
@@ -283,8 +346,9 @@ def p_booleanexpr_boolfromarith(p):
 # DIVIDING LINE AS DECLARATION OR ASSIGNMENT
 def p_line_decl(p):
 	"""
-	line : INT decllist
+	line : type decllist
 		 | assignmentlist
+		 | RETURN startwithany
 	"""
 	if p[1] == 'int':
 		p[0] = [p[2],False]
@@ -427,6 +491,7 @@ def p_arithmeticexpr_paren(p):
 def p_arithmeticexpr_terminal_NUMBER(p):
 	"""
 	arithmeticexpr : NUMBER
+				   | FLOATNUM
 	"""
 	p[0] = [Tree(p[1], None, 'CONST'), False]
 
