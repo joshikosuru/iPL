@@ -1,0 +1,9 @@
+newUpdatedForAssignment4/__pycache__/
+newUpdatedForAssignment4/ref/*.sym
+newUpdatedForAssignment4/ref/*.cfg
+newUpdatedForAssignment4/ref/*.ast
+newUpdatedForAssignment4/*.sym
+newUpdatedForAssignment4/*.cfg
+newUpdatedForAssignment4/*.ast
+newUpdatedForAssignment4/parser.out
+newUpdatedForAssignment4/parsetab.py
