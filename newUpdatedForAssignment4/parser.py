@@ -727,6 +727,7 @@ def process(lines):
 	# utils.printdict(funcSymDict, 0)
 	utils.giveTableSYM(varSymDict, funcSymDict, fileName)
 	utils.printFunctionNodesAST(FunctionNodes,fileName)
+	utils.giveCFGFile(FunctionNodes,fileName)
 	print("Successfully Parsed")
 
 
