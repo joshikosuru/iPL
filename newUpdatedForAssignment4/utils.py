@@ -161,3 +161,34 @@ def giveProcTableFuncString(i, funcSymDictI):
 	ret = ""
 	ret += (i + "\t\t|\t" + funcSymDictI[0] + givePointerAsStars(funcSymDictI[1]) + "\t\t|\t" + giveParamsForOutput(funcSymDictI[2]))
 	return ret
+
+
+def giveCFGFile(fnode,fileName):
+	CFGfileName = fileName+".cfg"
+	CFGFile = open(ASTfileName, "w")
+
+	blockCount = 0 
+	temp = 0 
+	for fitem in fnode:
+		z = helperForCFG(fitem.name,fitem.paramList)
+		CFGFile.write(z)
+		x = ASTNode('IF',None,None,[True,fitem.ASTList])
+		blocks = x.giveBlocks()
+		for i in range(1,len(blocks)):
+			CFGFile.write("\n<bb "+str(i)+">\n")
+			a = blocks[i]
+			if a[-1] == 'IF':
+				var,temp,lis = a[0].expand(temp,"")
+				CFGFile.write(lis)
+				CFGFile.write("if("+var+") goto <bb "+str(blockCount+a[1]-1)+">\n")
+				CFGFile.write("else goto <bb "+str(blockCount+a[2]-1)+">\n")
+			elif a[-1] == 'GOTO':
+				for j in range(0,len(a)-2):
+					var,temp,lis = a[j].expand(temp,"")
+					file.write(lis)
+				file.write("goto <bb "+str(blockCount+a[len(a)-2]-1)+">\n")
+			else:
+				file.write("return")
+				#RETURN
+			blockCount += len(blocks)-1
+

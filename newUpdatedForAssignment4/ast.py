@@ -11,6 +11,12 @@ class ASTNode(object):
 		self.pointerdepth = pointerdepth
 		self.children = li[:]
 
+	def isCondition(self):
+		if self.data == 'IF' or self.data == 'WHILE' or self.data == 'IFELSE':
+			return True
+		else:
+			return False
+
 	def appendchild(self, child):
 		self.children.append(child)
 
@@ -43,3 +49,105 @@ class ASTNode(object):
 				if index != len(self.children)-1:
 					file.write('\t'*(level+1)+',\n')
 			file.write('\t'*level+')\n')
+
+	def giveBlocks(self):
+		if self.isCondition:
+			# conditional block
+			ret = []
+			firstblock = [self.children[0],2,3,'IF']
+			ret.append(firstblock)
+			blockcur = []
+			blockcurid = 2
+			for item in self.children[1]:
+				blockitemlist = item.giveBlocks()
+				if isinstance(blockitemlist,ASTNode):
+					blockcur.append(blockitemlist)
+				else:
+					if len(blockcur) == 0:
+						blockcur = []
+					else:
+						blockcurid += 1
+						blockcur.append(blockcurid)
+						blockcur.append('GOTO')
+						ret.append(blockcur)
+						blockcur = []
+
+					for bitem in blockitemlist:
+						if bitem[-1] == 'IF':
+							bitem[-2] += blockcurid - 1
+							bitem[-3] +=  blockcurid - 1
+						if bitem[-1] == 'GOTO':
+							bitem[-2] += blockcurid - 1
+						else:
+							continue
+						ret.append(bitem)
+					blockcurid = len(ret) + 1
+
+			if(len(blockcur)!=0):
+				blockcur.append(blockcurid+1)
+				blockcur.append('GOTO')
+				ret.append(blockcur)
+
+			ret[0][-2] = len(ret) + 1
+			end_block_id = len(ret) + 1 
+
+			if self.data == 'WHILE':
+				for i in range(1,len(ret)):
+					c = ret[i]
+					if c[-1] == 'IF':
+						if c[-2] == end_block_id:
+							ret[i][-2] = 1
+						if c[-3] == end_block_id:
+							ret[i][-3] = 1
+					elif c[-2] == end_block_id:
+						ret[i][-2] = 1
+			elif self.data == 'IFELSE':
+				blockcurid = end_block_id
+				blockcur = []
+				for item in self.children[2]:
+					blockitemlist = item.giveBlocks()
+					if isinstance(blockitemlist,ASTNode):
+						blockcur.append(blockitemlist)
+					else:
+						if len(blockcur) == 0:
+							blockcur = []
+						else:
+							blockcurid += 1
+							blockcur.append(blockcurid)
+							blockcur.append('GOTO')
+							ret.append(blockcur)
+							blockcur = []
+
+						for bitem in blockitemlist:
+							if bitem[-1] == 'IF':
+								bitem[-2] += blockcurid - 1
+								bitem[-3] +=  blockcurid - 1
+							if bitem[-1] == 'GOTO':
+								bitem[-2] += blockcurid - 1
+							else:
+								continue
+							ret.append(bitem)
+						blockcurid = len(ret) + 1
+
+				if(len(blockcur)!=0):
+					blockcur.append(blockcurid+1)
+					blockcur.append('GOTO')
+					ret.append(blockcur)
+
+				for i in range(1,end_block_id - 1):
+					c = ret[i]
+					if c[-1] == 'IF':
+
+						if c[-2] == end_block_id:
+							ret[i][-2] = len(ret) + 1
+						if c[-3] == end_block_id:
+							ret[i][-3] = len(ret) + 1
+					elif c[-2] == end_block_id:
+						ret[i][-2] = len(ret) + 1
+
+
+			returnstmt = ['return']
+			ret.append(returnstmt)
+			return ret
+ 		else:
+			return self
