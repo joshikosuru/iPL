@@ -18,14 +18,15 @@ class ASTNode(object):
 		
 		if (self.data == 'CALL'):
 			file.write('\t'*level+self.data+' '+self.children[0]+'(\n')
-			for index in range(1,len(self.children)):
-				item = self.children[index]
-				item.giveOutputFile(level+1,file):
-				if index != len(self.children)-1:
+			temp = self.children[1]
+			for index in range(len(temp)):
+				item = temp[index]
+				item.giveOutputFile(level+1,file)
+				if index != len(temp)-1:
 					file.write('\t'*(level+1)+',\n')
 			file.write('\t'*level+')\n')
 		elif (self.data == 'VAR' or self.data == 'CONST'):
-			file.write('\t'*level+self.data+'('+str(self.left)+')\n')
+			file.write('\t'*level+self.data+'('+str(self.children[0])+')\n')
 		else:
 			if self.data == 'IFELSE':
 				self.data = 'IF'

@@ -87,18 +87,21 @@ def printFunctionNodesAST(li, fileName):
 	ASTfileName = fileName+".ast"
 	ASTFile = open(ASTfileName, "w")
 	for function in li:
-		ASTFile.write('FUNCTION ', function.name)
-		ASTFile.write('PARAMS (',giveParamsForOutput(function.paramList),')')
-		ASTFile.write('RETURNS ', givePointerAsStars(function.retDerive), function.retType)
+		ASTFile.write('FUNCTION '+ function.name + '\n')
+		ASTFile.write('PARAMS ('+giveParamsForOutput(function.paramList)+')' + '\n')
+		ASTFile.write('RETURNS '+ givePointerAsStars(function.retDerive)+ function.retType + '\n')
 		giveASTfromList(function.ASTList, ASTFile, 1)
 		returnSTMT = function.returnSTMT
 		if(returnSTMT is not None):
 			if returnSTMT == []:
-				ASTFile.write('RETURN')
-				ASTFile.write('(')
-				ASTFile.write(')')
+				ASTFile.write('RETURN'+ '\n')
+				ASTFile.write('('+ '\n')
+				ASTFile.write(')' + '\n\n')
 			else:
 				giveASTfromList(returnSTMT, ASTFile, 0)
+				ASTFile.write('\n')
+		else:
+			ASTFile.write('\n')
 	ASTFile.close()
 
 def givePointerAsStars(num):
@@ -110,8 +113,10 @@ def givePointerAsStars(num):
 
 def giveParamsForOutput(paramList):
 	ret = ""
-	for i in paramList:
+	for index, i in enumerate(paramList):
 		ret += (i[0] + " " + givePointerAsStars(i[1])+i[2])
+		if(index != len(paramList)-1):
+			ret += ", "
 	return ret
 
 def giveASTfromList(ASTList, ASTFile, level):

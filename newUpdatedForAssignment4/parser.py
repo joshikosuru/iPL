@@ -254,7 +254,7 @@ def p_functionblock(p):
 	elif p[4] == 'return':
 		temp = Func(p[1][1],p[1][0],p[1][2],p[1][3],p[3],[])
 	else:
-		temp = Func(p[1][1],p[1][0],p[1][2],p[1][3],p[3],p[4])
+		temp = Func(p[1][1],p[1][0],p[1][2],p[1][3],p[3],[p[4]])
 	FunctionNodes.append(temp)
 
 def p_functionblock_main(p):
@@ -368,7 +368,7 @@ def p_functionwork_block(p):
 					| whileblock functionwork
 	"""
 	temp = p[2][:]
-	temp.append(p[1],0)
+	temp.insert(0,p[1])
 	p[0] = temp
 
 
@@ -384,7 +384,7 @@ def p_functionwork_line(p):
 	functionwork : functionworkline SEMICOLON functionwork
 	"""
 	temp = p[3][:]
-	temp.append(p[1],0)
+	temp.insert(0,p[1])
 	p[0] = temp
 
 
@@ -484,15 +484,15 @@ def p_boolfromarith_def(p):
 	"""
 	if not utils.assignmentTypeCheck(p[1], p[3], "comparison"):
 		sys.exit()
-	if(p[0] == '<='):
+	if(p[2] == '<='):
 		p[0] = ASTNode('LE', None, None, [p[1], p[3]])
-	elif(p[0] == '>='):
+	elif(p[2] == '>='):
 		p[0] = ASTNode('GE', None, None, [p[1], p[3]])
-	elif(p[0] == '<'):
+	elif(p[2] == '<'):
 		p[0] = ASTNode('LT', None, None, [p[1], p[3]])
-	elif(p[0] == '>'):
+	elif(p[2] == '>'):
 		p[0] = ASTNode('GT', None, None, [p[1], p[3]])
-	elif(p[0] == '!='):
+	elif(p[2] == '!='):
 		p[0] = ASTNode('NE', None, None, [p[1], p[3]])
 	else:
 		p[0] = ASTNode('EQ', None, None, [p[1], p[3]])
@@ -719,11 +719,13 @@ def p_error(p):
 
 
 def process(lines):
+	global FunctionNodes , fileName
 	lex.lex()
 	yacc.yacc()
 	yacc.parse(lines)
 	utils.printdict(varSymDict, 1)
 	utils.printdict(funcSymDict, 0)
+	utils.printFunctionNodesAST(FunctionNodes,fileName)
 	print("Successfully Parsed")
 
 
@@ -735,6 +737,7 @@ if __name__ == "__main__":
 	funcSymDict = {} # funcSymDict[funcName] = (funcRet, funcDerive, paramList) #paramlist->(type, pointercount, name)
 	pointerCount = 0
 	FunctionNodes = []
-	with open(sys.argv[1], "r") as myFile:
+	fileName = sys.argv[1]
+	with open(fileName, "r") as myFile:
 		data = myFile.read()
 	process(data)
