@@ -166,5 +166,5 @@ def giveProcTableFuncString(i, funcSymDictI):
 
 def helperForCFG(funcName, paramList):
 	ret = ""
-	ret = "function "+funcName+"("+giveParamsForOutput(paramList)+")"
+	ret = "function "+funcName+"("+giveParamsForOutput(paramList)+")\n"
 	return ret
