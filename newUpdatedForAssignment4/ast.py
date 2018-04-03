@@ -1,3 +1,5 @@
+from constants import binaryOperators, unaryOperators, binaryOpMap, unaryOpMap
+
 class ASTNode(object):
 	def __init__(self):
 		self.data = None
@@ -15,7 +17,7 @@ class ASTNode(object):
 		self.children.append(child)
 
 	def giveOutputFile(self, level, file):
-		
+
 		if (self.data == 'CALL'):
 			file.write('\t'*level+self.data+' '+self.children[0]+'(\n')
 			temp = self.children[1]
@@ -43,3 +45,47 @@ class ASTNode(object):
 				if index != len(self.children)-1:
 					file.write('\t'*(level+1)+',\n')
 			file.write('\t'*level+')\n')
+
+	def expand(self, counter, lis):
+		if(self.data == "ASGN"):
+			right, counter, lis = (self.children[1]).expand(counter, lis)
+			left, counter, lis = (self.children[0]).expand(counter, lis)
+			lis += (left+" = "+right+"\n")
+			return "", counter, lis
+		elif(self.data in binaryOperators):
+			left, counter, lis = (self.children[0]).expand(counter, lis)
+			right, counter, lis = (self.children[1]).expand(counter, lis)
+			var = "t"+str(counter)
+			lis += (var+" = "+left+" "+binaryOpMap[self.data]+" "+right+"\n")
+			counter += 1
+			return var, counter, lis
+		elif(self.data == "NOT" or self.data == "UMINUS"):
+			left, counter, lis = (self.children[0]).expand(counter, lis)
+			var = "t"+str(counter)
+			lis += (var+" = "+unaryOpMap[self.data]+left+"\n")
+			counter += 1
+			return var, counter, lis
+		elif(self.data == "ADDR" or self.data == "DEREF"):
+			left, counter, lis = (self.children[0]).expand(counter, lis)
+			var = unaryOpMap[self.data]+left
+			return var, counter, lis
+		elif(self.data == "CONST" or self.data == "VAR"):
+			return str(self.left), counter, lis
+		elif(self.data == 'CALL'):
+			paramTemp = []
+			for i in self.children[1]:
+				templis = ""
+				tempVar, counter, templis = i.expand(counter, templis)
+				lis += templis
+				paramTemp.append(tempVar)
+			tempVarList = ""
+			for index, t in paramTemp:
+				tempVarList += t
+				if(index != len(paramTemp) - 1):
+					tempVarList += ","
+			lis += (i.name + "("+tempVarList+")\n")
+			return "", counter, lis
+		elif(self.data == 'RETURN'):
+			var, counter, lis = self.children[0].expand(counter, lis)
+			lis += ("return "+var+"\n")
+			return "", counter, lis
