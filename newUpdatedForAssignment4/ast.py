@@ -36,11 +36,14 @@ class ASTNode(object):
 		elif (self.data == 'VAR' or self.data == 'CONST'):
 			file.write('\t'*level+self.data+'('+str(self.children[0])+')\n')
 		else:
+			check = False
 			if self.data == 'IFELSE':
 				self.data = 'IF'
+				check = True
 			file.write('\t'*level+self.data+'\n')
-			self.data = 'IFELSE'
 			file.write('\t'*level+'(\n')
+			if check:
+				self.data = 'IFELSE'
 			for index,item in enumerate(self.children):
 				if isinstance(item,ASTNode):
 					item.giveOutputFile(level+1,file)
@@ -53,106 +56,314 @@ class ASTNode(object):
 			file.write('\t'*level+')\n')
 
 	def giveBlocks(self):
-		if self.isCondition:
-			# conditional block
-			ret = []
-			firstblock = [self.children[0],2,3,'IF']
-			ret.append(firstblock)
-			blockcur = []
-			blockcurid = 2
-			for item in self.children[1]:
-				blockitemlist = item.giveBlocks()
-				if isinstance(blockitemlist,ASTNode):
-					blockcur.append(blockitemlist)
-				else:
-					if len(blockcur) == 0:
-						blockcur = []
-					else:
-						blockcurid += 1
-						blockcur.append(blockcurid)
-						blockcur.append('GOTO')
-						ret.append(blockcur)
-						blockcur = []
+		if (self.data ==  'IF'):
 
-					for bitem in blockitemlist:
-						if bitem[-1] == 'IF':
-							bitem[-2] += blockcurid - 1
-							bitem[-3] +=  blockcurid - 1
-						if bitem[-1] == 'GOTO':
-							bitem[-2] += blockcurid - 1
+			block1 = [self.children[0],2,3,'IF'] # GRAMMAR HAS TO BE WRITTEN
+			returnblock = []
+			returnblock.append(block1)
+
+			block2 = []
+			block2num = 2
+			for item in self.children[1]:
+				blocklist = item.giveBlocks()
+				if blocklist[0]:
+					block2.append(blocklist[1])
+				else:
+					if len(block2)==0:
+						block2=[]
+					else:
+						block2.append(block2num+1)
+						block2.append('GOTO')
+						returnblock.append(block2)
+						block2 = []
+						block2num += 1
+
+					for some_item in blocklist[1]:
+						a= len(some_item)
+						if(some_item[a-1] == 'IF'):
+							some_item[a-2] += block2num-1
+							some_item[a-3] += block2num-1
+						elif some_item[a-1] == 'GOTO':
+							some_item[a-2] += block2num-1
 						else:
 							continue
-						ret.append(bitem)
-					blockcurid = len(ret) + 1
+						returnblock.append(some_item)
+					block2num = len(returnblock) + 1
+					# block2.append(item)
+			if len(block2)!= 0:
+				block2.append(block2num+1)
+				block2.append('GOTO')
+				returnblock.append(block2)
 
-			if(len(blockcur)!=0):
-				blockcur.append(blockcurid+1)
-				blockcur.append('GOTO')
-				ret.append(blockcur)
+			block3 = ['END']
+			returnblock.append(block3)
+			b = len(block1)
+			returnblock[0][b-2] = len(returnblock)
+			return [False,returnblock]
 
-			ret[0][-2] = len(ret) + 1
-			end_block_id = len(ret) + 1 
+		elif (self.data == 'WHILE'):
+			block1 = [self.children[0],2,3,'IF'] # GRAMMAR HAS TO BE WRITTEN
+			returnblock = []
+			returnblock.append(block1)
 
-			if self.data == 'WHILE':
-				for i in range(1,len(ret)):
-					c = ret[i]
-					if c[-1] == 'IF':
-						if c[-2] == end_block_id:
-							ret[i][-2] = 1
-						if c[-3] == end_block_id:
-							ret[i][-3] = 1
-					elif c[-2] == end_block_id:
-						ret[i][-2] = 1
-			elif self.data == 'IFELSE':
-				blockcurid = end_block_id
-				blockcur = []
-				for item in self.children[2]:
-					blockitemlist = item.giveBlocks()
-					if isinstance(blockitemlist,ASTNode):
-						blockcur.append(blockitemlist)
+			block2 = []
+			block2num = 2
+			for item in self.children[1]:
+				blocklist = item.giveBlocks()
+				if blocklist[0]:
+					block2.append(blocklist[1])
+				else:
+					if len(block2)==0:
+						block2=[]
 					else:
-						if len(blockcur) == 0:
-							blockcur = []
+						block2.append(block2num+1)
+						block2.append('GOTO')
+						returnblock.append(block2)
+						block2 = []
+						block2num += 1
+
+					for some_item in blocklist[1]:
+						a= len(some_item)
+						if(some_item[a-1] == 'IF'):
+							some_item[a-2] += block2num-1
+							some_item[a-3] += block2num-1
+						elif some_item[a-1] == 'GOTO':
+							some_item[a-2] += block2num-1
 						else:
-							blockcurid += 1
-							blockcur.append(blockcurid)
-							blockcur.append('GOTO')
-							ret.append(blockcur)
-							blockcur = []
+							continue
+						returnblock.append(some_item)
+					block2num = len(returnblock) + 1
+					# block2.append(item)
+			if len(block2)!= 0:
+				block2.append(1)
+				block2.append('GOTO')
+				returnblock.append(block2)
 
-						for bitem in blockitemlist:
-							if bitem[-1] == 'IF':
-								bitem[-2] += blockcurid - 1
-								bitem[-3] +=  blockcurid - 1
-							if bitem[-1] == 'GOTO':
-								bitem[-2] += blockcurid - 1
-							else:
-								continue
-							ret.append(bitem)
-						blockcurid = len(ret) + 1
+			block3 = ['END']
+			returnblock.append(block3)
+			b = len(block1)
+			end_block_id = len(returnblock)
+			returnblock[0][b-2] = end_block_id
 
-				if(len(blockcur)!=0):
-					blockcur.append(blockcurid+1)
-					blockcur.append('GOTO')
-					ret.append(blockcur)
+			for i in range(1,len(returnblock)-1):
+				c = returnblock[i]
+				if c[len(c)-1] == 'IF':
 
-				for i in range(1,end_block_id - 1):
-					c = ret[i]
-					if c[-1] == 'IF':
+					if c[len(c)-2] == end_block_id:
+						returnblock[i][len(c)-2] = 1
+					if c[len(c)-3] == end_block_id:
+						returnblock[i][len(c)-1] = 1
 
-						if c[-2] == end_block_id:
-							ret[i][-2] = len(ret) + 1
-						if c[-3] == end_block_id:
-							ret[i][-3] = len(ret) + 1
-					elif c[-2] == end_block_id:
-						ret[i][-2] = len(ret) + 1
+				else:
+					if c[len(c)-2] == end_block_id:
+						returnblock[i][len(c)-2] = 1
+
+			return [False,returnblock]
 
 
-			returnstmt = ['return']
-			ret.append(returnstmt)
-			return ret
- 		else:
-			return self
+
+		elif (self.data == 'IFELSE'):
+			block1 = [self.children[0],2,3,'IF'] # GRAMMAR HAS TO BE WRITTEN
+			returnblock = []
+			returnblock.append(block1)
+
+			block2 = []
+			block2num = 2
+			for item in self.children[1]:
+				blocklist = item.giveBlocks()
+				if blocklist[0]:
+					block2.append(blocklist[1])
+				else:
+					if len(block2)==0:
+						block2=[]
+					else:
+						block2.append(block2num+1)
+						block2.append('GOTO')
+						returnblock.append(block2)
+						block2 = []
+						block2num += 1
+
+					for some_item in blocklist[1]:
+						a= len(some_item)
+						if(some_item[a-1] == 'IF'):
+							some_item[a-2] += block2num-1
+							some_item[a-3] += block2num-1
+						elif some_item[a-1] == 'GOTO':
+							some_item[a-2] += block2num-1
+						else:
+							continue
+						returnblock.append(some_item)
+					block2num = len(returnblock) + 1
+					# block2.append(item)
+			if len(block2)!= 0:
+				block2.append(block2num+1)
+				block2.append('GOTO')
+				returnblock.append(block2)
+
+			b = len(block1)
+			returnblock[0][b-2] = len(returnblock) + 1
+			
+			id_we_put = len(returnblock) + 1
+
+			if_end_id = len(returnblock) 
+
+			block2num = id_we_put 
+			block2 = []
+
+			for item in self.children[2]:
+				blocklist = item.giveBlocks()
+				if blocklist[0]:
+					block2.append(blocklist[1])
+				else:
+					if(len(block2)==0):
+						block2=[]
+					else:
+						block2.append(block2num+1)
+						block2.append('GOTO')
+						returnblock.append(block2)
+						block2 = []
+						block2num += 1
+
+					for some_item in blocklist[1]:
+						a= len(some_item)
+						if(some_item[a-1]== 'IF'):
+							some_item[a-2] += block2num - 1 
+							some_item[a-3] += block2num - 1
+						elif some_item[a-1] == 'GOTO':
+							some_item[a-2] += block2num - 1
+						else:
+							continue
+						returnblock.append(some_item)
+					block2num = len(returnblock) + 1
+			if len(block2)!= 0:
+				block2.append(block2num+1)
+				block2.append('GOTO')
+				returnblock.append(block2)
+
+			block3 = ['END']
+			returnblock.append(block3)
+
+			for i in range(1,if_end_id):
+				c= returnblock[i]
+				if c[len(c)-1] == 'IF':
+
+					if c[len(c) - 2] == id_we_put:
+						returnblock[i][len(c)-2] = len(returnblock)
+					if c[len(c)-3] == id_we_put:
+						returnblock[i][len(c)-3] = len(returnblock)
+
+				else:
+					if c[len(c)-2] == id_we_put:
+						returnblock[i][len(c)-2] = len(returnblock)
+
+			return [False,returnblock]
+		else:
+			return [True,self] # null list is of temp variables / statements
+
+		# if self.isCondition():
+		# 	# conditional block
+		# 	ret = []
+		# 	firstblock = [self.children[0],2,3,'IF']
+		# 	ret.append(firstblock)
+		# 	blockcur = []
+		# 	blockcurid = 2
+		# 	# if isinstance(self.children[1],ASTNode):
+		# 		# print(self.children[1].data)
+		# 	for item in self.children[1]:
+		# 		blockitemlist = item.giveBlocks()
+		# 		if isinstance(blockitemlist,ASTNode):
+		# 			blockcur.append(blockitemlist)
+		# 		else:
+		# 			if len(blockcur) == 0:
+		# 				blockcur = []
+		# 			else:
+		# 				blockcurid += 1
+		# 				blockcur.append(blockcurid)
+		# 				blockcur.append('GOTO')
+		# 				ret.append(blockcur)
+		# 				blockcur = []
+
+		# 			for bitem in blockitemlist:
+		# 				if bitem[-1] == 'IF':
+		# 					bitem[-2] += blockcurid - 1
+		# 					bitem[-3] +=  blockcurid - 1
+		# 				if bitem[-1] == 'GOTO':
+		# 					bitem[-2] += blockcurid - 1
+		# 				else:
+		# 					continue
+		# 				ret.append(bitem)
+		# 			blockcurid = len(ret) + 1
+
+		# 	if(len(blockcur)!=0):
+		# 		blockcur.append(blockcurid+1)
+		# 		blockcur.append('GOTO')
+		# 		ret.append(blockcur)
+
+		# 	ret[0][-2] = len(ret) + 1
+		# 	end_block_id = len(ret) + 1 
+
+		# 	if self.data == 'WHILE':
+		# 		for i in range(1,len(ret)):
+		# 			c = ret[i]
+		# 			if c[-1] == 'IF':
+		# 				if c[-2] == end_block_id:
+		# 					ret[i][-2] = 1
+		# 				if c[-3] == end_block_id:
+		# 					ret[i][-3] = 1
+		# 			elif c[-2] == end_block_id:
+		# 				ret[i][-2] = 1
+		# 	elif self.data == 'IFELSE':
+		# 		blockcurid = end_block_id
+		# 		blockcur = []
+		# 		for item in self.children[2]:
+		# 			blockitemlist = item.giveBlocks()
+		# 			if isinstance(blockitemlist,ASTNode):
+		# 				blockcur.append(blockitemlist)
+		# 			else:
+		# 				if len(blockcur) == 0:
+		# 					blockcur = []
+		# 				else:
+		# 					blockcurid += 1
+		# 					blockcur.append(blockcurid)
+		# 					blockcur.append('GOTO')
+		# 					ret.append(blockcur)
+		# 					blockcur = []
+
+		# 				for bitem in blockitemlist:
+		# 					if bitem[-1] == 'IF':
+		# 						bitem[-2] += blockcurid - 1
+		# 						bitem[-3] +=  blockcurid - 1
+		# 					if bitem[-1] == 'GOTO':
+		# 						bitem[-2] += blockcurid - 1
+		# 					else:
+		# 						continue
+		# 					ret.append(bitem)
+		# 				blockcurid = len(ret) + 1
+
+		# 		if(len(blockcur)!=0):
+		# 			blockcur.append(blockcurid+1)
+		# 			blockcur.append('GOTO')
+		# 			ret.append(blockcur)
+
+		# 		for i in range(1,end_block_id - 1):
+		# 			c = ret[i]
+		# 			if c[-1] == 'IF':
+
+		# 				if c[-2] == end_block_id:
+		# 					ret[i][-2] = len(ret) + 1
+		# 				if c[-3] == end_block_id:
+		# 					ret[i][-3] = len(ret) + 1
+		# 			elif c[-2] == end_block_id:
+		# 				ret[i][-2] = len(ret) + 1
+
+
+		# 	returnstmt = ['return']
+		# 	ret.append(returnstmt)
+		# 	print(ret)
+		# 	print("--------------------")
+		# 	return ret
+		# else:
+		# 	return self
 
 	def expand(self, counter, lis):
 		if(self.data == "ASGN"):
@@ -178,7 +389,7 @@ class ASTNode(object):
 			var = unaryOpMap[self.data]+left
 			return var, counter, lis
 		elif(self.data == "CONST" or self.data == "VAR"):
-			return str(self.left), counter, lis
+			return str(self.children[0]), counter, lis
 		elif(self.data == 'CALL'):
 			paramTemp = []
 			for i in self.children[1]:
@@ -187,12 +398,13 @@ class ASTNode(object):
 				lis += templis
 				paramTemp.append(tempVar)
 			tempVarList = ""
-			for index, t in paramTemp:
+			for index, t in enumerate(paramTemp):
 				tempVarList += t
 				if(index != len(paramTemp) - 1):
 					tempVarList += ","
-			lis += (i.name + "("+tempVarList+")\n")
-			return "", counter, lis
+			# lis += (self.children[0] + "("+tempVarList+")\n")
+			templis = (self.children[0] + "("+tempVarList+")\n")
+			return templis, counter, lis
 		elif(self.data == 'RETURN'):
 			var, counter, lis = self.children[0].expand(counter, lis)
 			lis += ("return "+var+"\n")
