@@ -298,7 +298,7 @@ class ASTNode(object):
 				if(index != len(paramTemp) - 1):
 					tempVarList += ","
 			# lis += (self.children[0] + "("+tempVarList+")\n")
-			templis = (self.children[0] + "("+tempVarList+")\n")
+			templis = (self.children[0] + "("+tempVarList+")")
 			return templis, counter, lis
 		elif(self.data == 'RETURN'):
 			var, counter, lis = self.children[0].expand(counter, lis)
