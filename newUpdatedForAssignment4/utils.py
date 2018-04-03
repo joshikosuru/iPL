@@ -1,11 +1,15 @@
 import sys
 
-def printdict(dict):
-	for i in dict:
-		if(i[1] != '_'):
+def printdict(dict, isVar):
+	if isVar == 1:
+		for i in dict:
+			if(i[1] != '_'):
+				print(i, ":", dict[i])
+			else:
+				print((i[0], "global"), ":", dict[i])
+	else:
+		for i in dict:
 			print(i, ":", dict[i])
-		else:
-			print((i[0], "global"), ":", dict[i])
 
 def comparePrimitiveWithDef(funcName, funcRet, funcDerive, paramList, dictOutput):
 	(funcRet1, funcDerive1, paramList1) = dictOutput

@@ -173,7 +173,8 @@ def p_xdeclarationlist(p):
 
 def p_functiondecl(p):
 	"""
-	functiondecl : type pointerdef LPAREN paramlist RPAREN
+	functiondecl    : type pointerdef LPAREN paramlist RPAREN
+					| VOID pointerdef LPAREN paramlist RPAREN
 	"""
 	global paramList, funcSymDict
 	funcName, funcRet, funcDerive = p[2][0], p[1], p[2][1]
@@ -572,7 +573,7 @@ def p_arithmeticexpr_binop(p):
 		if(not utils.arithmeticTypeCheck(p[1], p[3])):
 			print("Type mismatch at +")
 			sys.exit()
-		p[0] = ASTNode('PLUS', [p[1], p[3]])
+		p[0] = ASTNode('PLUS', p[1].dtype, p[1].pointerdepth, [p[1], p[3]])
 	elif(p[2] == "-"):
 		if(not utils.arithmeticTypeCheck(p[1], p[3])):
 			print("Type mismatch at -")
@@ -686,8 +687,8 @@ def process(lines):
 	lex.lex()
 	yacc.yacc()
 	yacc.parse(lines)
-	utils.printdict(varSymDict)
-	utils.printdict(funcSymDict)
+	utils.printdict(varSymDict, 1)
+	utils.printdict(funcSymDict, 0)
 	print("Successfully Parsed")
 
 
