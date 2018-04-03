@@ -1,4 +1,5 @@
 import sys
+from ast import ASTNode
 
 def printdict(dict, isVar):
 	if isVar == 1:
@@ -89,7 +90,7 @@ def printFunctionNodesAST(li, fileName):
 		ASTFile.write('FUNCTION ', function.name)
 		ASTFile.write('PARAMS (',giveParamsForOutput(function.paramList),')')
 		ASTFile.write('RETURNS ', givePointerAsStars(function.retDerive), function.retType)
-		giveASTfromList(function.ASTList, ASTFile)
+		giveASTfromList(function.ASTList, ASTFile, 1)
 		returnSTMT = function.returnSTMT
 		if(returnSTMT is not None):
 			if returnSTMT == []:
@@ -97,7 +98,7 @@ def printFunctionNodesAST(li, fileName):
 				ASTFile.write('(')
 				ASTFile.write(')')
 			else:
-				giveASTfromList(returnSTMT, ASTFile)
+				giveASTfromList(returnSTMT, ASTFile, 0)
 	ASTFile.close()
 
 def givePointerAsStars(num):
@@ -112,3 +113,7 @@ def giveParamsForOutput(paramList):
 	for i in paramList:
 		ret += (i[0] + " " + givePointerAsStars(i[1])+i[2])
 	return ret
+
+def giveASTfromList(ASTList, ASTFile, level):
+	for i in ASTList:
+		i.giveOutputFile(level, ASTFile)
