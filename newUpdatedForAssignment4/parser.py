@@ -5,6 +5,7 @@ import ply.lex as lex
 import ply.yacc as yacc
 
 import utils
+from func import Func
 from ast import ASTNode
 
 tokens = (
@@ -245,9 +246,21 @@ def p_functionblock(p):
 	functionblock   : functionblockname LFBRACK functionlines returnstmtforfunc SEMICOLON RFBRACK
 					| functionblockname1 LFBRACK functionlines RETURN SEMICOLON RFBRACK
 					| functionblockname1 LFBRACK functionlines RFBRACK
-					| mainblock
 	"""
+	# type, name, pointerdepth, paramList
+	global FunctionNodes
+	if p[4] == '}':
+		temp = Func(p[1][1],p[1][0],p[1][2],p[1][3],p[3],[])
+	elif p[4] == 'return':
+		temp = Func(p[1][1],p[1][0],p[1][2],p[1][3],p[3],[])
+	else:
+		temp = Func(p[1][1],p[1][0],p[1][2],p[1][3],p[3],p[4])
+	FunctionNodes.append(temp)
 
+def p_functionblock_main(p):
+	"""
+	functionblock : mainblock
+	"""
 
 def p_returnstmtforfunc(p):
 	"""
@@ -282,7 +295,9 @@ def p_functionblockname(p):
 		utils.comparePrimitiveWithDef(funcName, funcRet, funcDerive, paramList, funcSymDict[funcName])
 		for i in paramList:
 			varSymDict[(i[2], currentScope)] = (i[0], i[1])
+		temp = paramList[:]
 		paramList = []
+	p[0] = (p[1], p[2][0], p[2][1], temp)
 
 
 def p_functionblockname1(p):
@@ -300,7 +315,9 @@ def p_functionblockname1(p):
 		utils.comparePrimitiveWithDef(funcName, funcRet, funcDerive, paramList, funcSymDict[funcName])
 		for i in paramList:
 			varSymDict[(i[2], currentScope)] = (i[0], i[1])
+		temp = paramList[:]
 		paramList = []
+	p[0] = (p[1], p[2][0], p[2][1], temp)
 
 
 
@@ -308,7 +325,10 @@ def p_mainblock(p):
 	"""
 	mainblock   : VOID mainfunctionname LFBRACK functionlines RFBRACK
 	"""
-	
+	global FunctionNodes
+	temp = Func('Main','void',0,[],p[4],None)
+	FunctionNodes.append(temp)
+	p[0] = temp
 
 
 def p_mainfunctionname(p):
@@ -714,6 +734,7 @@ if __name__ == "__main__":
 	varSymDict = {} # (name, currScope) -> (type, pointercount)
 	funcSymDict = {} # funcSymDict[funcName] = (funcRet, funcDerive, paramList) #paramlist->(type, pointercount, name)
 	pointerCount = 0
+	FunctionNodes = []
 	with open(sys.argv[1], "r") as myFile:
 		data = myFile.read()
 	process(data)
