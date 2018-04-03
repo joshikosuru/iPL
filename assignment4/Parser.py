@@ -172,10 +172,20 @@ def p_functionblocks_eps(p):
 
 def p_functionblock_handle(p):
 	"""
-	functionblock : type pointerdef LPAREN paramlist RPAREN LFBRACK lines RFBRACK
-				  | type NAME LPAREN paramlist RPAREN LFBRACK lines RFBRACK
+	functionblock : type functionscope LPAREN paramlist RPAREN LFBRACK lines RFBRACK
 				  | mainblock
 	"""
+
+def p_functionscope_handle(p):
+	"""
+	functionscope : NAME
+					| pointerdef
+	"""
+	global scope
+	if  isinstance(p[1],str):
+		scope = p[1]
+	else:
+		scope = p[1][0]
 
 def p_type_end(p):
 	"""
@@ -374,7 +384,10 @@ def p_pointerdef_ch(p):
 	pointerdef : POINTER NAME
 					| POINTER pointerdef
 	"""
-	p[0] = p[1]+p[2]
+	if isinstance(p[2],str):
+		p[0] = (p[2],1)
+	else:
+		p[0] = (p[2][0],p[2][1]+1)
 
 
 # POINTER DECLARATION AFTER COMMA
@@ -561,6 +574,9 @@ if __name__ == "__main__":
 	noOfPointerDecl = 0
 	noOfAssignDecl = 0
 	rootList = []
+	vardict = {}
+	funcdict = {}
+	scope = 'global'
 	with open (sys.argv[1], "r") as myfile:
 		data = myfile.read()
 		file = sys.argv[1]+".ast"

@@ -308,6 +308,7 @@ def p_mainblock(p):
 	"""
 	mainblock   : VOID mainfunctionname LFBRACK functionlines RFBRACK
 	"""
+	
 
 
 def p_mainfunctionname(p):
@@ -322,7 +323,7 @@ def p_functionlines(p):
 	"""
 	functionlines : functionvardeclarations functionwork
 	"""
-
+	p[0] = p[2]
 
 def p_functiondeclarations(p):
 	"""
@@ -335,6 +336,7 @@ def p_functionvardeclaration(p):
 	"""
 	functionvardeclaration : type declarationlist
 	"""
+	global varSymDict
 	for i in varSymDict:
 		if varSymDict[i][0] == "default":
 			varSymDict[i] = (p[1], varSymDict[i][1])
@@ -344,14 +346,27 @@ def p_functionwork_block(p):
 	"""
 	functionwork    : ifblock functionwork
 					| whileblock functionwork
-					|
 	"""
+	temp = p[2][:]
+	temp.append(p[1],0)
+	p[0] = temp
+
+
+def p_functionwork_eps(p):
+	"""
+	functionwork : 
+	"""
+	p[0] = []
 
 
 def p_functionwork_line(p):
 	"""
 	functionwork : functionworkline SEMICOLON functionwork
 	"""
+	temp = p[3][:]
+	temp.append(p[1],0)
+	p[0] = temp
+
 
 
 # def p_block(p):
@@ -404,7 +419,7 @@ def p_conditionalbody(p):
 	if(p[1] == '{'):
 		p[0] = p[2]
 	else:
-		p[0] = p[1]
+		p[0] = [p[1]]
 
 
 def p_condition(p):
