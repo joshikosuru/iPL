@@ -81,3 +81,34 @@ def checkTypeParams(functionCallParamList, funcSymDictParamList, functionName):
 			if((functionCallParamList[i].dtype != funcSymDictParamList[i][0]) or (functionCallParamList[i].pointerdepth != funcSymDictParamList[i][1])):
 				print("Parameter number : "+str(i+1)+" - type or pointer mismatch while calling function "+str(functionName))
 				sys.exit()
+
+def printFunctionNodesAST(li, fileName):
+	ASTfileName = fileName+".ast"
+	ASTFile = open(ASTfileName, "w")
+	for function in li:
+		ASTFile.write('FUNCTION ', function.name)
+		ASTFile.write('PARAMS (',giveParamsForOutput(function.paramList),')')
+		ASTFile.write('RETURNS ', givePointerAsStars(function.retDerive), function.retType)
+		giveASTfromList(function.ASTList, ASTFile)
+		returnSTMT = function.returnSTMT
+		if(returnSTMT is not None):
+			if returnSTMT == []:
+				ASTFile.write('RETURN')
+				ASTFile.write('(')
+				ASTFile.write(')')
+			else:
+				giveASTfromList(returnSTMT, ASTFile)
+	ASTFile.close()
+
+def givePointerAsStars(num):
+	ret = ""
+	while(num > 0):
+		ret += "*"
+		num -= 1
+	return ret
+
+def giveParamsForOutput(paramList):
+	ret = ""
+	for i in paramList:
+		ret += (i[0] + " " + givePointerAsStars(i[1])+i[2])
+	return ret
