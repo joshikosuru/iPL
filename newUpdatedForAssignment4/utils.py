@@ -91,7 +91,10 @@ def printFunctionNodesAST(li, fileName):
 	ASTfileName = fileName+".ast"
 	ASTFile = open(ASTfileName, "w")
 	for function in li:
-		ASTFile.write('FUNCTION '+ function.name + '\n')
+		if(function.name == 'main'):
+			ASTFile.write('Function Main' + '\n')
+		else:
+			ASTFile.write('FUNCTION '+ function.name + '\n')
 		ASTFile.write('PARAMS ('+giveParamsForOutput(function.paramList)+')' + '\n')
 		ASTFile.write('RETURNS '+ givePointerAsStars(function.retDerive)+ function.retType + '\n')
 		giveASTfromList(function.ASTList, ASTFile, 1)
@@ -164,13 +167,12 @@ def giveProcTableFuncString(i, funcSymDictI):
 	ret += (i + "\t\t|\t" + funcSymDictI[0] + givePointerAsStars(funcSymDictI[1]) + "\t\t|\t" + giveParamsForOutput(funcSymDictI[2]))
 	return ret
 
-
 def giveCFGFile(fnode,fileName):
 	CFGfileName = fileName+".cfg"
 	CFGFile = open(CFGfileName, "w")
 
-	blockCount = -1 
-	temp = 0 
+	blockCount = -1
+	temp = 0
 	for fitem in fnode:
 		z = helperForCFG(fitem.name,fitem.paramList)
 		CFGFile.write(z)
@@ -199,37 +201,7 @@ def giveCFGFile(fnode,fileName):
 						CFGFile.write("return\n\n")
 				else:
 					CFGFile.write("return\n\n")
-						
-				#RETURN
 		blockCount += len(blocks)-1
-
-
-
-	# blockCount = -1 
-	# temp = 0 
-	# for fitem in fnode:
-	# 	z = helperForCFG(fitem.name,fitem.paramList)
-	# 	CFGFile.write(z)
-	# 	x = ASTNode('IF',None,None,[True,fitem.ASTList])
-	# 	blocks = x.giveBlocks()
-	# 	for i in range(1,len(blocks)):
-	# 		CFGFile.write("\n<bb "+str(i+blockCount)+">\n")
-	# 		a = blocks[i]
-	# 		print(a)
-	# 		if a[-1] == 'IF':
-	# 			var,temp,lis = a[0].expand(temp,"")
-	# 			CFGFile.write(lis)
-	# 			CFGFile.write("if("+var+") goto <bb "+str(blockCount+a[1]-1)+">\n")
-	# 			CFGFile.write("else goto <bb "+str(blockCount+a[2]-1)+">\n")
-	# 		elif a[-1] == 'GOTO':
-	# 			for j in range(0,len(a)-2):
-	# 				var,temp,lis = a[j].expand(temp,"")
-	# 				CFGFile.write(lis)
-	# 			CFGFile.write("goto <bb "+str(blockCount+a[len(a)-2]-1)+">\n")
-	# 		else:
-	# 			CFGFile.write("return\n")
-	# 			#RETURN
-	# 	blockCount += len(blocks)-1
 
 def helperForCFG(funcName, paramList):
 	ret = ""

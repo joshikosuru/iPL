@@ -326,7 +326,7 @@ def p_mainblock(p):
 	mainblock   : VOID mainfunctionname LFBRACK functionlines RFBRACK
 	"""
 	global FunctionNodes
-	temp = Func('Main','void',0,[],p[4],None)
+	temp = Func('main','void',0,[],p[4],None)
 	FunctionNodes.append(temp)
 	p[0] = temp
 
