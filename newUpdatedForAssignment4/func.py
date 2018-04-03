@@ -6,8 +6,8 @@ class Func(object):
 		self.paramList = None
 		self.ASTList = None
 		self.returnSTMT = None
-		
-	def __init__(self,name, retType, retDerive, paramList, ASTList, returnSTMT):
+
+	def __init__(self, name, retType, retDerive, paramList, ASTList, returnSTMT):
 		self.name = name
 		self.retType = retType
 		self.retDerive = retDerive

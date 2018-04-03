@@ -1,4 +1,6 @@
 import sys
+from operator import itemgetter
+
 from ast import ASTNode
 
 def printdict(dict, isVar):
@@ -122,3 +124,37 @@ def giveParamsForOutput(paramList):
 def giveASTfromList(ASTList, ASTFile, level):
 	for i in ASTList:
 		i.giveOutputFile(level, ASTFile)
+
+def giveTableSYM(varSymDict, funcSymDict, fileName):
+	SYMfileName = fileName+".sym"
+	SYMFile = open(SYMfileName, "w")
+	SYMFile.write("Procedure table :-\n")
+	SYMFile.write("-----------------------------------------------------------------\n")
+	SYMFile.write("Name\t\t|\tReturn Type  |  Parameter List\n")
+	for i in funcSymDict:
+		SYMFile.write(giveProcTableFuncString(i, funcSymDict[i])+"\n")
+	SYMFile.write("Variable table :- \n")
+	SYMFile.write("-----------------------------------------------------------------\n")
+	SYMFile.write("Name\t|\tScope\t\t|\tBase Type  |  Derived Type\n")
+	SYMFile.write("-----------------------------------------------------------------\n")
+	varSymDictKeys = varSymDict.keys()
+	varSymDictKeys = sorted(varSymDictKeys, key = lambda x:(x[1], x[0]))
+	for i in varSymDictKeys:
+		ret = i[0]+"\t\t|\t"
+		if(i[1] == "main"):
+			ret += "main\t\t|\t"
+		elif(i[1] == "_"):
+			ret += "procedure global\t|\t"
+		else:
+			ret += "procedure "+i[1]+"\t|\t"
+		ret += varSymDict[i][0]+"\t   |\t"
+		ret += givePointerAsStars(varSymDict[i][1])+"\n"
+		SYMFile.write(ret)
+	SYMFile.write("-----------------------------------------------------------------\n")
+	SYMFile.write("-----------------------------------------------------------------\n")
+	SYMFile.close()
+
+def giveProcTableFuncString(i, funcSymDictI):
+	ret = ""
+	ret += (i + "\t\t|\t" + funcSymDictI[0] + givePointerAsStars(funcSymDictI[1]) + "\t\t|\t" + giveParamsForOutput(funcSymDictI[2]))
+	return ret

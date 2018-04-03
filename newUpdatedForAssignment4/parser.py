@@ -374,7 +374,7 @@ def p_functionwork_block(p):
 
 def p_functionwork_eps(p):
 	"""
-	functionwork : 
+	functionwork :
 	"""
 	p[0] = []
 
@@ -723,8 +723,9 @@ def process(lines):
 	lex.lex()
 	yacc.yacc()
 	yacc.parse(lines)
-	utils.printdict(varSymDict, 1)
-	utils.printdict(funcSymDict, 0)
+	# utils.printdict(varSymDict, 1)
+	# utils.printdict(funcSymDict, 0)
+	utils.giveTableSYM(varSymDict, funcSymDict, fileName)
 	utils.printFunctionNodesAST(FunctionNodes,fileName)
 	print("Successfully Parsed")
 
@@ -734,7 +735,7 @@ if __name__ == "__main__":
 	functionCallParamList = []
 	currentScope = "_"
 	varSymDict = {} # (name, currScope) -> (type, pointercount)
-	funcSymDict = {} # funcSymDict[funcName] = (funcRet, funcDerive, paramList) #paramlist->(type, pointercount, name)
+	funcSymDict = {} # funcSymDict[funcName] = (funcRet, funcDerive, paramList) #paramlist->[(type, pointercount, name)]
 	pointerCount = 0
 	FunctionNodes = []
 	fileName = sys.argv[1]
