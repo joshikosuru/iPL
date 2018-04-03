@@ -163,3 +163,8 @@ def giveProcTableFuncString(i, funcSymDictI):
 	ret = ""
 	ret += (i + "\t\t|\t" + funcSymDictI[0] + givePointerAsStars(funcSymDictI[1]) + "\t\t|\t" + giveParamsForOutput(funcSymDictI[2]))
 	return ret
+
+def helperForCFG(funcName, paramList):
+	ret = ""
+	ret = "function "+funcName+"("+giveParamsForOutput(paramList)+")"
+	return ret
