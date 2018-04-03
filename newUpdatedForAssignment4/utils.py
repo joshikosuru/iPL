@@ -45,10 +45,12 @@ def arithmeticTypeCheck(nodeL, nodeR):
 		if(nodeL.pointerdepth != nodeR.pointerdepth):
 			print("pointer mismatch in arithmetic operation")
 			return False
-		if(nodeL.pointerdepth == 0):
-			if(nodeL.data == 'VAR' or nodeR.data == 'VAR'):
-				print("Direct base type access in arithmetic operation")
-				return False
+		if(nodeL.pointerdepth != 0):
+			print("pointer arithmetic not allowed")
+			return False
+		if(nodeL.data == 'VAR' or nodeR.data == 'VAR'):
+			print("Direct base type access in arithmetic operation")
+			return False
 	return True
 
 def assignmentTypeCheck(nodeL, nodeR, typeCheck):

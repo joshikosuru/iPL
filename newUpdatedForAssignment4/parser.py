@@ -606,22 +606,22 @@ def p_arithmeticexpr_binop(p):
 	"""
 	if(p[2] == "+"):
 		if(not utils.arithmeticTypeCheck(p[1], p[3])):
-			print("Type mismatch at +")
+			print("Error at +")
 			sys.exit()
 		p[0] = ASTNode('PLUS', p[1].dtype, p[1].pointerdepth, [p[1], p[3]])
 	elif(p[2] == "-"):
 		if(not utils.arithmeticTypeCheck(p[1], p[3])):
-			print("Type mismatch at -")
+			print("Error at -")
 			sys.exit()
 		p[0] = ASTNode('MINUS', p[1].dtype, p[1].pointerdepth, [p[1], p[3]])
 	elif(p[2] == "*"):
 		if(not utils.arithmeticTypeCheck(p[1], p[3])):
-			print("Type mismatch at *")
+			print("Error at *")
 			sys.exit()
 		p[0] = ASTNode('MUL', p[1].dtype, p[1].pointerdepth, [p[1], p[3]])
 	else:
 		if(not utils.arithmeticTypeCheck(p[1], p[3])):
-			print("Type mismatch at /")
+			print("Error at /")
 			sys.exit()
 		p[0] = ASTNode('DIV', p[1].dtype, p[1].pointerdepth, [p[1], p[3]])
 
