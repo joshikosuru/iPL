@@ -131,8 +131,11 @@ def giveTableSYM(varSymDict, funcSymDict, fileName):
 	SYMFile.write("Procedure table :-\n")
 	SYMFile.write("-----------------------------------------------------------------\n")
 	SYMFile.write("Name\t\t|\tReturn Type  |  Parameter List\n")
-	for i in funcSymDict:
+	funcSymDictKeys = funcSymDict.keys()
+	funcSymDictKeys = sorted(funcSymDictKeys)
+	for i in funcSymDictKeys:
 		SYMFile.write(giveProcTableFuncString(i, funcSymDict[i])+"\n")
+	SYMFile.write("-----------------------------------------------------------------\n")
 	SYMFile.write("Variable table :- \n")
 	SYMFile.write("-----------------------------------------------------------------\n")
 	SYMFile.write("Name\t|\tScope\t\t|\tBase Type  |  Derived Type\n")
