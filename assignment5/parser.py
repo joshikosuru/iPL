@@ -261,6 +261,8 @@ def p_functionblock_main(p):
 	"""
 	functionblock : mainblock
 	"""
+	global FunctionParams
+	FunctionParams.append(list())
 
 def p_returnstmtforfunc(p):
 	"""
@@ -284,7 +286,7 @@ def p_functionblockname(p):
 	"""
 	functionblockname : type pointerdef LPAREN paramlist RPAREN
 	"""
-	global currentScope
+	global currentScope,FunctionParams
 	currentScope, _ = p[2]
 	global paramList, funcSymDict, varSymDict
 	funcName, funcRet, funcDerive = p[2][0], p[1], p[2][1]
@@ -296,6 +298,7 @@ def p_functionblockname(p):
 		for i in paramList:
 			varSymDict[(i[2], currentScope)] = (i[0], i[1], 1)
 		temp = paramList[:]
+		FunctionParams.append(temp)
 		paramList = []
 	p[0] = (p[1], p[2][0], p[2][1], temp)
 
@@ -304,7 +307,7 @@ def p_functionblockname1(p):
 	"""
 	functionblockname1 : VOID pointerdef LPAREN paramlist RPAREN
 	"""
-	global currentScope
+	global currentScope,FunctionParams
 	currentScope, _ = p[2]
 	global paramList, funcSymDict, varSymDict
 	funcName, funcRet, funcDerive = p[2][0], p[1], p[2][1]
@@ -316,6 +319,7 @@ def p_functionblockname1(p):
 		for i in paramList:
 			varSymDict[(i[2], currentScope)] = (i[0], i[1], 1)
 		temp = paramList[:]
+		FunctionParams.append(temp)
 		paramList = []
 	p[0] = (p[1], p[2][0], p[2][1], temp)
 
@@ -728,7 +732,7 @@ def process(lines):
 	# utils.giveTableSYM(varSymDict, funcSymDict, fileName)
 	# utils.printFunctionNodesAST(FunctionNodes,fileName)
 	# utils.giveCFGFile(FunctionNodes,fileName)
-	utils.generateAssemblyCode(FunctionNodes, fileName, varSymDict, funcSymDict)
+	utils.generateAssemblyCode(FunctionNodes, fileName, varSymDict,FunctionParams)
 	print("Successfully Parsed")
 
 
@@ -740,6 +744,7 @@ if __name__ == "__main__":
 	funcSymDict = {} # funcSymDict[funcName] = (funcRet, funcDerive, paramList) #paramlist->[(type, pointercount, name)]
 	pointerCount = 0
 	FunctionNodes = []
+	FunctionParams = []
 	fileName = sys.argv[1]
 	with open(fileName, "r") as myFile:
 		data = myFile.read()

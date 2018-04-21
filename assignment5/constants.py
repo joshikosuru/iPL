@@ -22,6 +22,24 @@ binaryOpMap = {
 	"ASGN" : "="
 }
 
+OpMap_asm = {
+	"LE" : "sle",
+	"GE" : "sle",
+	"LT" : "slt",
+	"GT" : "slt",
+	"NE" : "sne",
+	"EQ" : "seq",
+	"OR" : "or",
+	"AND" : "and",
+	"PLUS" : "add",
+	"MINUS" : "sub",
+	"MUL" : "imul",
+	"DIV" : "div",
+	"ASGN" : "=",
+	"NOT" : "not",
+	"UMINUS" : "negu"
+}
+
 unaryOpMap = {
     "VAR" : "",
     "ADDR" : "&",

@@ -1,4 +1,5 @@
-from constants import binaryOperators, unaryOperators, binaryOpMap, unaryOpMap
+import sys
+from constants import binaryOperators, unaryOperators, binaryOpMap ,OpMap_asm, unaryOpMap
 
 class ASTNode(object):
 	def __init__(self):
@@ -306,31 +307,91 @@ class ASTNode(object):
 			return "", counter, lis
 
 
-	def expand_assembly(self, counter,lis):
+	def expand_assembly(self, free_reglist,lis,varAccessDict,for_addr):
 		if(self.data == "ASGN"):
-			right, counter, lis = (self.children[1]).expand(counter, lis)
-			left, counter, lis = (self.children[0]).expand(counter, lis)
-			lis += (left+" = "+right+"\n")
-			return "", counter, lis
+			right, free_reglist, lis = (self.children[1]).expand_assembly(free_reglist,lis,varAccessDict,False)
+			left, free_reglist, lis = (self.children[0]).expand_assembly(free_reglist,lis,varAccessDict,True)
+			if self.children[0].data=="VAR":
+				lis += ("\tsw "+num_to_reg(right)+", "+str(left)+"($sp)\n")
+			else:
+				lis += ("\tsw "+num_to_reg(right)+", 0("+num_to_reg(left)+")\n")
+				free_reglist.append(left)
+			free_reglist.append(right)			
+			return -1, free_reglist, lis
 		elif(self.data in binaryOperators):
-			left, counter, lis = (self.children[0]).expand(counter, lis)
-			right, counter, lis = (self.children[1]).expand(counter, lis)
-			var = "t"+str(counter)
-			lis += (var+" = "+left+" "+binaryOpMap[self.data]+" "+right+"\n")
-			counter += 1
-			return var, counter, lis
+			leftreg, free_reglist, lis = (self.children[0]).expand_assembly(free_reglist,lis,varAccessDict,for_addr)
+			rightreg, free_reglist, lis = (self.children[1]).expand_assembly(free_reglist,lis,varAccessDict,for_addr)
+			newreg,newnum=giveminRegister(free_reglist)
+			free_reglist.remove(newnum)
+			if ((self.data == "GE") or (self.data=="GT")):
+				lis += ("\t"+OpMap_asm[self.data]+" "+newreg+", "+num_to_reg(rightreg)+", "+num_to_reg(leftreg)+"\n")
+			else:
+				lis += ("\t"+OpMap_asm[self.data]+" "+newreg+", "+num_to_reg(leftreg)+", "+num_to_reg(rightreg)+"\n")
+			free_reglist.append(leftreg)
+			free_reglist.append(rightreg)
+
+			movereg,movenum = giveminRegister(free_reglist)
+			lis += ("\tmove "+movereg+", "+newreg+"\n")
+			free_reglist.remove(movenum)
+			free_reglist.append(newnum)
+			return movenum, free_reglist, lis
 		elif(self.data == "NOT" or self.data == "UMINUS"):
-			left, counter, lis = (self.children[0]).expand(counter, lis)
-			var = "t"+str(counter)
-			lis += (var+" = "+unaryOpMap[self.data]+left+"\n")
-			counter += 1
-			return var, counter, lis
-		elif(self.data == "ADDR" or self.data == "DEREF"):
-			left, counter, lis = (self.children[0]).expand(counter, lis)
-			var = unaryOpMap[self.data]+left
-			return var, counter, lis
-		elif(self.data == "CONST" or self.data == "VAR"):
-			return str(self.children[0]), counter, lis
+			regnum,free_reglist,lis = (self.children[0].expand_assembly(free_reglist,lis,varAccessDict,for_addr))
+			newreg,newnum = giveminRegister(free_reglist)
+			free_reglist.remove(newnum)
+			lis += ("\t"+OpMap_asm[self.data]+" "+newreg+", "+num_to_reg(regnum)+"\n")
+			free_reglist.append(regnum)
+			movereg,movenum = giveminRegister(free_reglist)
+			lis += ("\tmove "+movereg+", "+newreg+"\n")
+			free_reglist.remove(movenum)
+			free_reglist.append(newnum)
+			return movenum,free_reglist,lis			
+		elif(self.data == "ADDR"):
+			if self.children[0].data=="DEREF":
+				return self.children[0].children[0].expand_assembly(free_reglist,lis,varAccessDict,for_addr)
+			varcount,free_reglist,lis = (self.children[0].expand_assembly(free_reglist,lis,varAccessDict,True))
+			register,regnum = giveminRegister(free_reglist)
+			free_reglist.remove(regnum)
+			if varcount == (-1):
+				lis += ("\tla "+register+", global_"+self.children[0].children[0]+"\n")
+				# here by calling children twice im assuming the second child is name only.
+			else:
+				lis += ("\taddi "+register+", $sp, "+str(varcount) +"\n")
+			return regnum, free_reglist, lis
+		elif(self.data == "DEREF"):
+			regnum,free_reglist,lis = (self.children[0].expand_assembly(free_reglist,lis,varAccessDict,for_addr))
+			newreg,newnum = giveminRegister(free_reglist)
+			free_reglist.remove(newnum)
+			if self.children[0].data == "VAR" and for_addr:
+				if regnum == (-1):
+					# means it is global var
+					lis +=("\tlw "+newreg+", global_"+self.children[0].children[0]+"\n")
+				else:
+					lis +=("\tlw "+newreg+", "+str(regnum)+"($sp)\n")
+			else:
+				lis +=("\tlw "+newreg+", 0("+num_to_reg(regnum)+")\n")
+				free_reglist.append(regnum)
+			return newnum,free_reglist,lis
+		elif(self.data == "CONST"):
+			register,regnum = giveminRegister(free_reglist)
+			free_reglist.remove(regnum)
+			lis += ("\tli "+register+", "+str(self.children[0])+"\n")
+			return regnum, free_reglist, lis
+		elif(self.data == "VAR"):
+			regnum = 0
+			if for_addr:
+				if self.children[0] in varAccessDict:
+					return varAccessDict[self.children[0]], free_reglist, lis
+				else:
+					return -1,free_reglist,lis
+			register,regnum = giveminRegister(free_reglist)
+			free_reglist.remove(regnum)
+			if self.children[0] in varAccessDict:
+				lis += ("\tlw "+register+", "+str(varAccessDict[self.children[0]])+"($sp)\n")
+			else:
+				lis += ("\tlw "+register+", global_"+self.children[0]+"\n")
+			return regnum,free_reglist,lis		
+
 		elif(self.data == 'CALL'):
 			paramTemp = []
 			for i in self.children[1]:
@@ -347,7 +408,26 @@ class ASTNode(object):
 			templis = (self.children[0] + "("+tempVarList+")")
 			return templis, counter, lis
 		elif(self.data == 'RETURN'):
-			var, counter, lis = self.children[0].expand(counter, lis)
-			lis += ("return "+var+"\n")
-			return "", counter, lis
+			regnum, free_reglist, lis = self.children[0].expand_assembly(free_reglist,lis,varAccessDict,for_addr)
+			lis += ("\tmove $v1, "+num_to_reg(regnum)+" # move return value to $v1\n")
+			return regnum, free_reglist, lis
 
+def num_to_reg(a):
+	if a<8:
+		return "$s"+str(a)
+	elif a<18:
+		return "$t"+str(a-8)
+	else:
+		print("Insuffient number of registers")
+		sys.exit()
+
+def giveminRegister(num_list):
+	num_list.sort()
+	a = num_list[0]
+	if a<8:
+		return "$s"+str(a),a
+	elif a<18:
+		return "$t"+str(a-8),a
+	else:
+		print("Insuffient number of registers")
+		sys.exit()

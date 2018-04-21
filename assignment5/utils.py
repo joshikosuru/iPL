@@ -224,7 +224,7 @@ def writeGlobalVaribles(varSymDict):
 
 	return stri
 
-def writeFS(f, varSymDict,blockCount):
+def writeFS(f, varSymDict,blockCount,fparams):
 	li = []
 	for i in varSymDict.keys():
 		if i[1] == f.name and varSymDict[i][2] == 0:
@@ -238,35 +238,44 @@ def writeFS(f, varSymDict,blockCount):
 		else:
 			spaceForF += 8
 		varAccessDict[i] = spaceForF
+	free_reglist = list(range(18))
 	stri = ""
 	stri += ('\t.text\t# The .text assembler directive indicates\n')
 	stri += ('\t.globl '+str(f.name)+'\t# The following is the code\n')
 	stri += (str(f.name)+":\n")
 	stri += ("# Prologue begins\n\tsw $ra, 0($sp)\t# Save the return address\n\tsw $fp, -4($sp)\t# Save the frame pointer\n\tsub $fp, $sp, 8\t# Update the frame pointer\n\tsub $sp, $sp, "+str(8+spaceForF)+"\t# Make space for the locals\n# Prologue ends\n")
 
+	spaceForFcpy = spaceForF + 8
+	for i in fparams:
+		if (i[0] == 'int' or i[1]>0):
+			spaceForFcpy += 4
+		else:
+			spaceForFcpy += 8
+		varAccessDict[i[2]] = spaceForFcpy
 	newblockCount = blockCount
 	x = ASTNode('IF',None,None,[True,f.ASTList])
 	blocks1 = x.giveBlocks()
 	blocks = blocks1[1]
 	for i in range(1,len(blocks)):
+		free_reglist = list(range(18))
+# 		this initialisation of free_reglist idk if its true
 		stri += ("label"+str(i+blockCount)+":\n")
 		a = blocks[i]
 		if a[-1] == 'IF':
-			var,temp,lis = a[0].expand(temp,"")
-			CFGFile.write(lis)
-
+			var,free_reglist,lis = a[0].expand_assembly(free_reglist,"",varAccessDict,False)
+			stri += lis
 			stri += ("\tbne $s0, $0, label"+str(blockCount+a[1]-1)+"\n\tj label"+str(blockCount+a[2]-1)+"\n")
 		elif a[-1] == 'GOTO':
 			for j in range(0,len(a)-2):
-				var,temp,lis = a[j].expand(temp,"")
-				CFGFile.write(lis)
+				var,free_reglist,lis = a[j].expand_assembly(free_reglist,"",varAccessDict,False)
+				stri += lis
 
 			stri += ("\tj label"+str(blockCount+a[len(a)-2]-1)+"\n")
 		else:
 			if(f.returnSTMT is not None):
 				if(len(f.returnSTMT) > 0):
-					var,temp,lis = f.returnSTMT[0].expand(temp,"")
-					CFGFile.write(lis)
+					var,free_reglist,lis = f.returnSTMT[0].expand_assembly(free_reglist,"",varAccessDict,False)
+					stri += lis
 
 			stri += ("\tj epilogue_"+(str(f.name))+"\n")
 	newblockCount += len(blocks)-1
@@ -274,7 +283,7 @@ def writeFS(f, varSymDict,blockCount):
 	stri += ("\n# Epilogue begins\nepilogue_"+str(f.name)+":\n"+"\tadd $sp, $sp, "+str(8+spaceForF)+"\n\tlw $fp, -4($sp)\n\tlw $ra, 0($sp)\n\tjr $ra\t# Jump back to the called procedure\n# Epilogue ends\n")
 	return stri ,  newblockCount
 
-def generateAssemblyCode(fnode, fileName, varSymDict, funcSymDict):
+def generateAssemblyCode(fnode, fileName, varSymDict,FunctionParams):
 	SFileName = fileName+".s"
 	SFile = open(SFileName, "w")
 
@@ -282,11 +291,18 @@ def generateAssemblyCode(fnode, fileName, varSymDict, funcSymDict):
 	SFile.write(writeGlobalVaribles(varSymDict))
 	SFile.write('\n')
 	blockCount = -1
-	for f in fnode:
-		stri,blockCount = writeFS(f, varSymDict,blockCount)
+	for i in range(len(fnode)):
+		f =fnode[i]
+		fparams = FunctionParams[i]
+		stri,blockCount = writeFS(f, varSymDict,blockCount,fparams)
 		SFile.write(stri)
 	SFile.close()
 
 
 	# SFile.write('\t.text\t# The .text assembler directive indicates')
 	# SFile.write('\t.globl main	# The following is the code')
+def giveParamNamesInOrder(paramList):
+	q = []
+	for i in paramList:
+		q.append(i[2])
+	return q
