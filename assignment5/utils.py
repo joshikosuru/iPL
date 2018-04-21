@@ -224,7 +224,7 @@ def writeGlobalVaribles(varSymDict):
 
 	return stri
 
-def writeFS(f, varSymDict,blockCount,fparams):
+def writeFS(f, varSymDict,blockCount):
 	li = []
 	for i in varSymDict.keys():
 		if i[1] == f.name and varSymDict[i][2] == 0:
@@ -246,6 +246,7 @@ def writeFS(f, varSymDict,blockCount,fparams):
 	stri += ("# Prologue begins\n\tsw $ra, 0($sp)\t# Save the return address\n\tsw $fp, -4($sp)\t# Save the frame pointer\n\tsub $fp, $sp, 8\t# Update the frame pointer\n\tsub $sp, $sp, "+str(8+spaceForF)+"\t# Make space for the locals\n# Prologue ends\n")
 
 	spaceForFcpy = spaceForF + 8
+	fparams = f.paramList
 	for i in fparams:
 		if (i[0] == 'int' or i[1]>0):
 			spaceForFcpy += 4
@@ -283,7 +284,7 @@ def writeFS(f, varSymDict,blockCount,fparams):
 	stri += ("\n# Epilogue begins\nepilogue_"+str(f.name)+":\n"+"\tadd $sp, $sp, "+str(8+spaceForF)+"\n\tlw $fp, -4($sp)\n\tlw $ra, 0($sp)\n\tjr $ra\t# Jump back to the called procedure\n# Epilogue ends\n")
 	return stri ,  newblockCount
 
-def generateAssemblyCode(fnode, fileName, varSymDict,FunctionParams):
+def generateAssemblyCode(fnode, fileName, varSymDict):
 	SFileName = fileName+".s"
 	SFile = open(SFileName, "w")
 
@@ -291,10 +292,8 @@ def generateAssemblyCode(fnode, fileName, varSymDict,FunctionParams):
 	SFile.write(writeGlobalVaribles(varSymDict))
 	SFile.write('\n')
 	blockCount = -1
-	for i in range(len(fnode)):
-		f =fnode[i]
-		fparams = FunctionParams[i]
-		stri,blockCount = writeFS(f, varSymDict,blockCount,fparams)
+	for f in fnode:
+		stri,blockCount = writeFS(f, varSymDict,blockCount)
 		SFile.write(stri)
 	SFile.close()
 

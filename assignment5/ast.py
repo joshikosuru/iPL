@@ -312,7 +312,10 @@ class ASTNode(object):
 			right, free_reglist, lis = (self.children[1]).expand_assembly(free_reglist,lis,varAccessDict,False)
 			left, free_reglist, lis = (self.children[0]).expand_assembly(free_reglist,lis,varAccessDict,True)
 			if self.children[0].data=="VAR":
-				lis += ("\tsw "+num_to_reg(right)+", "+str(left)+"($sp)\n")
+				if left == (-1):
+					lis += ("\tsw "+num_to_reg(right)+", global_"+self.children[0].children[0]+"\n")
+				else:
+					lis += ("\tsw "+num_to_reg(right)+", "+str(left)+"($sp)\n")
 			else:
 				lis += ("\tsw "+num_to_reg(right)+", 0("+num_to_reg(left)+")\n")
 				free_reglist.append(left)
@@ -393,20 +396,37 @@ class ASTNode(object):
 			return regnum,free_reglist,lis		
 
 		elif(self.data == 'CALL'):
-			paramTemp = []
+			templis = lis
+			lis +=	("\t# setting up activation record for called function\n")
+
+			stackcount =0
 			for i in self.children[1]:
-				templis = ""
-				tempVar, counter, templis = i.expand(counter, templis)
-				lis += templis
-				paramTemp.append(tempVar)
-			tempVarList = ""
-			for index, t in enumerate(paramTemp):
-				tempVarList += t
-				if(index != len(paramTemp) - 1):
-					tempVarList += ","
-			# lis += (self.children[0] + "("+tempVarList+")\n")
-			templis = (self.children[0] + "("+tempVarList+")")
-			return templis, counter, lis
+				if i.dtype == "float" and i.pointerdepth == 0:
+					stackcount += 8
+				else:
+					stackcount += 4
+			stck = stackcount
+			stackcount *= (-1)
+			for i in self.children[1]:
+				regnum, free_reglist, lis = i.expand_assembly(free_reglist,lis,varAccessDict,False)
+				if i.dtype == "float" and i.pointerdepth == 0:
+					stackcount += 8
+				else:
+					stackcount += 4
+
+				free_reglist.append(regnum)
+				lis += ("\tsw "+num_to_reg(regnum)+", "+str(stackcount)+"($sp)\n")
+
+			lis += ("\tsub $sp, $sp, "+str(stck)+"\n")
+			lis += ("\tjal "+self.children[0]+" # function call\n")
+			lis += ("\tadd $sp, $sp, "+str(stck)+" # destroying activation record of called function\n")
+
+			lis += ("\tmove $s0, $v1 # using the return value of called function\n")
+			movereg,movenum = giveminRegister(free_reglist)
+			free_reglist.remove(movenum)
+			return movenum, free_reglist, lis
+			# return 0, free_reglist, lis
+		
 		elif(self.data == 'RETURN'):
 			regnum, free_reglist, lis = self.children[0].expand_assembly(free_reglist,lis,varAccessDict,for_addr)
 			lis += ("\tmove $v1, "+num_to_reg(regnum)+" # move return value to $v1\n")
