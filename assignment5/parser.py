@@ -148,7 +148,7 @@ def p_globalvardecl(p):
 	"""
 	for i in varSymDict:
 		if varSymDict[i][0] == "default":
-			varSymDict[i] = (p[1], varSymDict[i][1])
+			varSymDict[i] = (p[1], varSymDict[i][1], 0)
 
 
 def p_declarationlist(p):
@@ -159,7 +159,7 @@ def p_declarationlist(p):
 	global varSymDict
 	(name, pointercount) = p[1]
 	if (name, currentScope) not in varSymDict:
-		varSymDict[(name, currentScope)] = ("default", pointercount)
+		varSymDict[(name, currentScope)] = ("default", pointercount, 0)
 	else:
 		print("Variable "+str(name)+" defined twice in scope of "+str(currentScope))
 		sys.exit()
@@ -294,7 +294,7 @@ def p_functionblockname(p):
 	else:
 		utils.comparePrimitiveWithDef(funcName, funcRet, funcDerive, paramList, funcSymDict[funcName])
 		for i in paramList:
-			varSymDict[(i[2], currentScope)] = (i[0], i[1])
+			varSymDict[(i[2], currentScope)] = (i[0], i[1], 1)
 		temp = paramList[:]
 		paramList = []
 	p[0] = (p[1], p[2][0], p[2][1], temp)
@@ -314,7 +314,7 @@ def p_functionblockname1(p):
 	else:
 		utils.comparePrimitiveWithDef(funcName, funcRet, funcDerive, paramList, funcSymDict[funcName])
 		for i in paramList:
-			varSymDict[(i[2], currentScope)] = (i[0], i[1])
+			varSymDict[(i[2], currentScope)] = (i[0], i[1], 1)
 		temp = paramList[:]
 		paramList = []
 	p[0] = (p[1], p[2][0], p[2][1], temp)
@@ -359,7 +359,7 @@ def p_functionvardeclaration(p):
 	global varSymDict
 	for i in varSymDict:
 		if varSymDict[i][0] == "default":
-			varSymDict[i] = (p[1], varSymDict[i][1])
+			varSymDict[i] = (p[1], varSymDict[i][1], 0)
 
 
 def p_functionwork_block(p):
@@ -549,7 +549,7 @@ def p_assignment_leftvar(p):
 	assignment : NAME ASSIGN arithmeticexpr
 	"""
 	global currentScope, varSymDict
-	(dtype, pointerdepth) = utils.giveVarSymOutput(p[1], currentScope, varSymDict)
+	(dtype, pointerdepth, _) = utils.giveVarSymOutput(p[1], currentScope, varSymDict)
 	nodeL = ASTNode('VAR', dtype, pointerdepth, [p[1]])
 	if(not utils.assignmentTypeCheck(nodeL, p[3], "assignment")):
 		print("Type mismatch at assignment")
@@ -590,10 +590,10 @@ def p_startwithany_define(p):
 			sys.exit()
 		p[0] = ASTNode('DEREF', p[2].dtype, p[2].pointerdepth - 1, [p[2]])
 	elif(p[1] == "&"):
-		(dtype, pointerdepth) = utils.giveVarSymOutput(p[2], currentScope, varSymDict)
+		(dtype, pointerdepth, _) = utils.giveVarSymOutput(p[2], currentScope, varSymDict)
 		p[0] = ASTNode('ADDR', dtype, pointerdepth + 1, [ASTNode('VAR', dtype, pointerdepth, [p[2]])])
 	else:
-		(dtype, pointerdepth) = utils.giveVarSymOutput(p[1], currentScope, varSymDict)
+		(dtype, pointerdepth, _) = utils.giveVarSymOutput(p[1], currentScope, varSymDict)
 		p[0] = ASTNode('VAR', dtype, pointerdepth, [p[1]])
 
 
@@ -725,9 +725,10 @@ def process(lines):
 	yacc.parse(lines)
 	# utils.printdict(varSymDict, 1)
 	# utils.printdict(funcSymDict, 0)
-	utils.giveTableSYM(varSymDict, funcSymDict, fileName)
-	utils.printFunctionNodesAST(FunctionNodes,fileName)
-	utils.giveCFGFile(FunctionNodes,fileName)
+	# utils.giveTableSYM(varSymDict, funcSymDict, fileName)
+	# utils.printFunctionNodesAST(FunctionNodes,fileName)
+	# utils.giveCFGFile(FunctionNodes,fileName)
+	utils.generateAssemblyCode(FunctionNodes, fileName, varSymDict, funcSymDict)
 	print("Successfully Parsed")
 
 

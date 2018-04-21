@@ -207,3 +207,54 @@ def helperForCFG(funcName, paramList):
 	ret = ""
 	ret = "function "+funcName+"("+giveParamsForOutput(paramList)+")"
 	return ret
+
+def writeGlobalVaribles(varSymDict):
+	li = []
+	stri = ""
+	for i in varSymDict.keys():
+		if(i[1] == '_'):
+			li.append(i[0])
+	li.sort()
+	for i in li:
+		val = varSymDict[(i, '_')]
+		if(val[0] == 'float' and val[1] == 0):
+			stri += ("global_"+i+":\t.space\t8\n")
+		else:
+			stri += ("global_"+i+":\t.word\t0\n")
+
+	return stri
+
+def writeFS(f, varSymDict):
+	li = []
+	for i in varSymDict.keys():
+		if i[1] == f.name and varSymDict[i][2] == 0:
+			li.append(i[0])
+	li.sort()
+	spaceForF = 0
+	for i in li:
+		if(varSymDict[(i, f.name)][0] == 'int' or varSymDict[(i, f.name)][1] > 0):
+			spaceForF += 4
+		else:
+			spaceForF += 8
+	stri = ""
+	stri += ('\t.text\t# The .text assembler directive indicates\n')
+	stri += ('\t.globl '+str(f.name)+'\t# The following is the code\n')
+	stri += (str(f.name)+":\n")
+	stri += ("# Prologue begins\n\tsw $ra, 0($sp)\t# Save the return address\n\tsw $fp, -4($sp)\t# Save the frame pointer\n\tsub $fp, $sp, 8\t# Update the frame pointer\n\tsub $sp, $sp, "+str(8+spaceForF)+"\t# Make space for the locals\n# Prologue ends\n")
+
+	stri += ("\n# Epilogue begins\nepilogue_"+str(f.name)+":\n"+"\tadd $sp, $sp, "+str(8+spaceForF)+"\n\tlw $fp, -4($sp)\n\tlw $ra, 0($sp)\n\tjr $ra\t# Jump back to the called procedure\n# Epilogue ends\n")
+
+	return stri
+
+def generateAssemblyCode(fnode, fileName, varSymDict, funcSymDict):
+	SFileName = fileName+".s"
+	SFile = open(SFileName, "w")
+
+	SFile.write('\n\t.data\n')
+	SFile.write(writeGlobalVaribles(varSymDict))
+	SFile.write('\n')
+	for f in fnode:
+		SFile.write(writeFS(f, varSymDict))
+	SFile.close()
+	# SFile.write('\t.text\t# The .text assembler directive indicates')
+	# SFile.write('\t.globl main	# The following is the code')

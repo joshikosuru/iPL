@@ -1,0 +1,8 @@
+A5-files/*
+!A5-files/Parser
+!A5-files/read_sym
+!A5-files/test.sh
+
+__pycache__/*
+parsetab.py
+parser.out
