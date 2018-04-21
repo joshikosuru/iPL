@@ -304,3 +304,50 @@ class ASTNode(object):
 			var, counter, lis = self.children[0].expand(counter, lis)
 			lis += ("return "+var+"\n")
 			return "", counter, lis
+
+
+	def expand_assembly(self, counter,lis):
+		if(self.data == "ASGN"):
+			right, counter, lis = (self.children[1]).expand(counter, lis)
+			left, counter, lis = (self.children[0]).expand(counter, lis)
+			lis += (left+" = "+right+"\n")
+			return "", counter, lis
+		elif(self.data in binaryOperators):
+			left, counter, lis = (self.children[0]).expand(counter, lis)
+			right, counter, lis = (self.children[1]).expand(counter, lis)
+			var = "t"+str(counter)
+			lis += (var+" = "+left+" "+binaryOpMap[self.data]+" "+right+"\n")
+			counter += 1
+			return var, counter, lis
+		elif(self.data == "NOT" or self.data == "UMINUS"):
+			left, counter, lis = (self.children[0]).expand(counter, lis)
+			var = "t"+str(counter)
+			lis += (var+" = "+unaryOpMap[self.data]+left+"\n")
+			counter += 1
+			return var, counter, lis
+		elif(self.data == "ADDR" or self.data == "DEREF"):
+			left, counter, lis = (self.children[0]).expand(counter, lis)
+			var = unaryOpMap[self.data]+left
+			return var, counter, lis
+		elif(self.data == "CONST" or self.data == "VAR"):
+			return str(self.children[0]), counter, lis
+		elif(self.data == 'CALL'):
+			paramTemp = []
+			for i in self.children[1]:
+				templis = ""
+				tempVar, counter, templis = i.expand(counter, templis)
+				lis += templis
+				paramTemp.append(tempVar)
+			tempVarList = ""
+			for index, t in enumerate(paramTemp):
+				tempVarList += t
+				if(index != len(paramTemp) - 1):
+					tempVarList += ","
+			# lis += (self.children[0] + "("+tempVarList+")\n")
+			templis = (self.children[0] + "("+tempVarList+")")
+			return templis, counter, lis
+		elif(self.data == 'RETURN'):
+			var, counter, lis = self.children[0].expand(counter, lis)
+			lis += ("return "+var+"\n")
+			return "", counter, lis
+

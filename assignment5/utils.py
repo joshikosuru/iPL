@@ -224,27 +224,55 @@ def writeGlobalVaribles(varSymDict):
 
 	return stri
 
-def writeFS(f, varSymDict):
+def writeFS(f, varSymDict,blockCount):
 	li = []
 	for i in varSymDict.keys():
 		if i[1] == f.name and varSymDict[i][2] == 0:
 			li.append(i[0])
 	li.sort()
 	spaceForF = 0
+	varAccessDict = {}
 	for i in li:
 		if(varSymDict[(i, f.name)][0] == 'int' or varSymDict[(i, f.name)][1] > 0):
 			spaceForF += 4
 		else:
 			spaceForF += 8
+		varAccessDict[i] = spaceForF
 	stri = ""
 	stri += ('\t.text\t# The .text assembler directive indicates\n')
 	stri += ('\t.globl '+str(f.name)+'\t# The following is the code\n')
 	stri += (str(f.name)+":\n")
 	stri += ("# Prologue begins\n\tsw $ra, 0($sp)\t# Save the return address\n\tsw $fp, -4($sp)\t# Save the frame pointer\n\tsub $fp, $sp, 8\t# Update the frame pointer\n\tsub $sp, $sp, "+str(8+spaceForF)+"\t# Make space for the locals\n# Prologue ends\n")
 
-	stri += ("\n# Epilogue begins\nepilogue_"+str(f.name)+":\n"+"\tadd $sp, $sp, "+str(8+spaceForF)+"\n\tlw $fp, -4($sp)\n\tlw $ra, 0($sp)\n\tjr $ra\t# Jump back to the called procedure\n# Epilogue ends\n")
+	newblockCount = blockCount
+	x = ASTNode('IF',None,None,[True,f.ASTList])
+	blocks1 = x.giveBlocks()
+	blocks = blocks1[1]
+	for i in range(1,len(blocks)):
+		stri += ("label"+str(i+blockCount)+":\n")
+		a = blocks[i]
+		if a[-1] == 'IF':
+			var,temp,lis = a[0].expand(temp,"")
+			CFGFile.write(lis)
 
-	return stri
+			stri += ("\tbne $s0, $0, label"+str(blockCount+a[1]-1)+"\n\tj label"+str(blockCount+a[2]-1)+"\n")
+		elif a[-1] == 'GOTO':
+			for j in range(0,len(a)-2):
+				var,temp,lis = a[j].expand(temp,"")
+				CFGFile.write(lis)
+
+			stri += ("\tj label"+str(blockCount+a[len(a)-2]-1)+"\n")
+		else:
+			if(f.returnSTMT is not None):
+				if(len(f.returnSTMT) > 0):
+					var,temp,lis = f.returnSTMT[0].expand(temp,"")
+					CFGFile.write(lis)
+
+			stri += ("\tj epilogue_"+(str(f.name))+"\n")
+	newblockCount += len(blocks)-1
+
+	stri += ("\n# Epilogue begins\nepilogue_"+str(f.name)+":\n"+"\tadd $sp, $sp, "+str(8+spaceForF)+"\n\tlw $fp, -4($sp)\n\tlw $ra, 0($sp)\n\tjr $ra\t# Jump back to the called procedure\n# Epilogue ends\n")
+	return stri ,  newblockCount
 
 def generateAssemblyCode(fnode, fileName, varSymDict, funcSymDict):
 	SFileName = fileName+".s"
@@ -253,8 +281,12 @@ def generateAssemblyCode(fnode, fileName, varSymDict, funcSymDict):
 	SFile.write('\n\t.data\n')
 	SFile.write(writeGlobalVaribles(varSymDict))
 	SFile.write('\n')
+	blockCount = -1
 	for f in fnode:
-		SFile.write(writeFS(f, varSymDict))
+		stri,blockCount = writeFS(f, varSymDict,blockCount)
+		SFile.write(stri)
 	SFile.close()
+
+
 	# SFile.write('\t.text\t# The .text assembler directive indicates')
 	# SFile.write('\t.globl main	# The following is the code')
