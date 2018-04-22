@@ -33,7 +33,7 @@ OpMap_asm = {
 	"AND" : "and",
 	"PLUS" : "add",
 	"MINUS" : "sub",
-	"MUL" : "imul",
+	"MUL" : "mul",
 	"DIV" : "div",
 	"ASGN" : "=",
 	"NOT" : "not",

@@ -1,5 +1,7 @@
 import sys
 from constants import binaryOperators, unaryOperators, binaryOpMap ,OpMap_asm, unaryOpMap
+free_fplist = [2*x for x in range(5,16)]
+
 
 class ASTNode(object):
 	def __init__(self):
@@ -308,9 +310,22 @@ class ASTNode(object):
 
 
 	def expand_assembly(self, free_reglist,lis,varAccessDict,for_addr):
+		global free_fplist
 		if(self.data == "ASGN"):
 			right, free_reglist, lis = (self.children[1]).expand_assembly(free_reglist,lis,varAccessDict,False)
 			left, free_reglist, lis = (self.children[0]).expand_assembly(free_reglist,lis,varAccessDict,True)
+			if self.children[0].dtype == "float" and self.children[0].pointerdepth ==0:
+				if self.children[0].data=="VAR":
+					if left == (-1):
+						lis += ("\ts.s $f"+str(right)+", global_"+self.children[0].children[0]+"\n")
+					else:
+						lis += ("\ts.s $f"+str(right)+", "+str(left)+"($sp)\n")
+				else:
+					lis += ("\ts.s $f"+str(right)+", 0("+num_to_reg(left)+")\n")
+					free_reglist.append(left)
+				free_fplist.append(right)
+				return -1,free_reglist,lis
+
 			if self.children[0].data=="VAR":
 				if left == (-1):
 					lis += ("\tsw "+num_to_reg(right)+", global_"+self.children[0].children[0]+"\n")
@@ -324,6 +339,17 @@ class ASTNode(object):
 		elif(self.data in binaryOperators):
 			leftreg, free_reglist, lis = (self.children[0]).expand_assembly(free_reglist,lis,varAccessDict,for_addr)
 			rightreg, free_reglist, lis = (self.children[1]).expand_assembly(free_reglist,lis,varAccessDict,for_addr)
+			if self.dtype == "float":
+				value,num_list = givefpRegister(free_fplist)
+				free_fplist = num_list[:]
+				lis += ("\t"+OpMap_asm[self.data]+".s $f"+str(value)+", $f"+str(leftreg)+", $f"+str(rightreg)+"\n")
+				free_fplist.append(leftreg)
+				free_fplist.append(rightreg)
+				movenum , num_list = givefpRegister(free_fplist)
+				free_fplist = num_list[:]
+				lis += ("\tmove.s $f"+str(movenum)+", $f"+str(value)+"\n")
+				free_fplist.append(value)
+				return movenum,free_reglist,lis
 			newreg,newnum=giveminRegister(free_reglist)
 			free_reglist.remove(newnum)
 			if ((self.data == "GE") or (self.data=="GT")):
@@ -340,6 +366,17 @@ class ASTNode(object):
 			return movenum, free_reglist, lis
 		elif(self.data == "NOT" or self.data == "UMINUS"):
 			regnum,free_reglist,lis = (self.children[0].expand_assembly(free_reglist,lis,varAccessDict,for_addr))
+			if self.dtype=="float":
+				value,num_list = givefpRegister(free_fplist)
+				free_fplist = num_list[:]
+				lis += ("\t"+OpMap_asm[self.data]+".s $f"+str(value)+", $f"+str(regnum)+"\n")
+				free_fplist.append(regnum)
+				newval,num_list = givefpRegister(free_fplist)
+				free_fplist = num_list[:]
+				lis += ("\tmove.s $f"+str(newval)+", $f"+str(value)+"\n")
+				free_fplist.append(value)
+				return newval,free_reglist,lis
+
 			newreg,newnum = giveminRegister(free_reglist)
 			free_reglist.remove(newnum)
 			lis += ("\t"+OpMap_asm[self.data]+" "+newreg+", "+num_to_reg(regnum)+"\n")
@@ -363,6 +400,12 @@ class ASTNode(object):
 			return regnum, free_reglist, lis
 		elif(self.data == "DEREF"):
 			regnum,free_reglist,lis = (self.children[0].expand_assembly(free_reglist,lis,varAccessDict,for_addr))
+			if self.dtype == "float" and not(for_addr) and self.pointerdepth == 0:
+				value,num_list = givefpRegister(free_fplist)
+				free_fplist = num_list[:]
+				lis += ("\tl.s $f"+str(value)+", 0("+num_to_reg(regnum)+")\n")
+				free_reglist.append(regnum)
+				return value,free_reglist,lis
 			newreg,newnum = giveminRegister(free_reglist)
 			free_reglist.remove(newnum)
 			if self.children[0].data == "VAR" and for_addr:
@@ -376,6 +419,11 @@ class ASTNode(object):
 				free_reglist.append(regnum)
 			return newnum,free_reglist,lis
 		elif(self.data == "CONST"):
+			if self.dtype=="float":
+				value,num_list = givefpRegister(free_fplist)
+				free_fplist = num_list[:]
+				lis += ("\tli.s $f"+str(value)+", "+str(self.children[0])+"\n")
+				return value,free_reglist,lis
 			register,regnum = giveminRegister(free_reglist)
 			free_reglist.remove(regnum)
 			lis += ("\tli "+register+", "+str(self.children[0])+"\n")
@@ -413,6 +461,10 @@ class ASTNode(object):
 					stackcount += 8
 				else:
 					stackcount += 4
+				if i.dtype == "float":
+					lis += ("\ts.s $f"+str(regnum)+", "+str(stackcount)+"($sp)\n")
+					free_fplist.append(regnum)
+					continue
 
 				free_reglist.append(regnum)
 				lis += ("\tsw "+num_to_reg(regnum)+", "+str(stackcount)+"($sp)\n")
@@ -431,6 +483,17 @@ class ASTNode(object):
 			regnum, free_reglist, lis = self.children[0].expand_assembly(free_reglist,lis,varAccessDict,for_addr)
 			lis += ("\tmove $v1, "+num_to_reg(regnum)+" # move return value to $v1\n")
 			return regnum, free_reglist, lis
+
+
+
+def givefpRegister(num_list):
+	num_list.sort()
+	if len(num_list) == 0:
+		print("Insuffient number of float registers")
+		sys.exit()
+	value = num_list[0]
+	num_list.remove(value)
+	return value,num_list
 
 def num_to_reg(a):
 	if a<8:
