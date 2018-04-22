@@ -1,7 +1,8 @@
 import sys
-from constants import binaryOperators, unaryOperators, binaryOpMap ,OpMap_asm, unaryOpMap
+from constants import binaryOperators, unaryOperators, binaryOpMap ,OpMap_asm, unaryOpMap, FloatSBinaryOpMap
 free_fplist = [2*x for x in range(5,16)]
 
+condfnum = 0
 
 class ASTNode(object):
 	def __init__(self):
@@ -309,11 +310,11 @@ class ASTNode(object):
 			return "", counter, lis
 
 
-	def expand_assembly(self, free_reglist,lis,varAccessDict,for_addr):
+	def expand_assembly(self, free_reglist,lis,varAccessDict,for_addr, currentLabel):
 		global free_fplist
 		if(self.data == "ASGN"):
-			right, free_reglist, lis = (self.children[1]).expand_assembly(free_reglist,lis,varAccessDict,False)
-			left, free_reglist, lis = (self.children[0]).expand_assembly(free_reglist,lis,varAccessDict,True)
+			right, free_reglist, lis = (self.children[1]).expand_assembly(free_reglist,lis,varAccessDict,False, currentLabel)
+			left, free_reglist, lis = (self.children[0]).expand_assembly(free_reglist,lis,varAccessDict,True, currentLabel)
 			if self.children[0].dtype == "float" and self.children[0].pointerdepth ==0:
 				if self.children[0].data=="VAR":
 					if left == (-1):
@@ -334,11 +335,11 @@ class ASTNode(object):
 			else:
 				lis += ("\tsw "+num_to_reg(right)+", 0("+num_to_reg(left)+")\n")
 				free_reglist.append(left)
-			free_reglist.append(right)			
+			free_reglist.append(right)
 			return -1, free_reglist, lis
 		elif(self.data in binaryOperators):
-			leftreg, free_reglist, lis = (self.children[0]).expand_assembly(free_reglist,lis,varAccessDict,for_addr)
-			rightreg, free_reglist, lis = (self.children[1]).expand_assembly(free_reglist,lis,varAccessDict,for_addr)
+			leftreg, free_reglist, lis = (self.children[0]).expand_assembly(free_reglist,lis,varAccessDict,for_addr, currentLabel)
+			rightreg, free_reglist, lis = (self.children[1]).expand_assembly(free_reglist,lis,varAccessDict,for_addr, currentLabel)
 			if self.dtype == "float":
 				value,num_list = givefpRegister(free_fplist)
 				free_fplist = num_list[:]
@@ -347,9 +348,28 @@ class ASTNode(object):
 				free_fplist.append(rightreg)
 				movenum , num_list = givefpRegister(free_fplist)
 				free_fplist = num_list[:]
-				lis += ("\tmove.s $f"+str(movenum)+", $f"+str(value)+"\n")
+				lis += ("\tmov.s $f"+str(movenum)+", $f"+str(value)+"\n")
 				free_fplist.append(value)
 				return movenum,free_reglist,lis
+			if((self.children[0]).dtype == "float"):
+				global condfnum
+				# leftreg, free_reglist, lis = (self.children[0]).expand_assembly(free_reglist,lis,varAccessDict,for_addr, currentLabel)
+				# rightreg, free_reglist, lis = (self.children[1]).expand_assembly(free_reglist,lis,varAccessDict,for_addr, currentLabel)
+				if(self.data == "GE" or self.data == "GT"):
+					temp, free_reglist, re = write_G_GT_L_LT_EQ_NE_Float(self.data, rightreg, leftreg, currentLabel, condfnum, 0, free_reglist)
+					lis += temp
+					condfnum += 1
+				elif(self.data == "NE"):
+					temp, free_reglist, re = write_G_GT_L_LT_EQ_NE_Float(self.data, leftreg, rightreg, currentLabel, condfnum, 1, free_reglist)
+					lis += temp
+					condfnum += 1
+				else:
+					temp, free_reglist, re = write_G_GT_L_LT_EQ_NE_Float(self.data, leftreg, rightreg, currentLabel, condfnum, 0, free_reglist)
+					lis += temp
+					condfnum += 1
+				free_fplist.append(leftreg)
+				free_fplist.append(rightreg)
+				return re, free_reglist, lis
 			newreg,newnum=giveminRegister(free_reglist)
 			free_reglist.remove(newnum)
 			if ((self.data == "GE") or (self.data=="GT")):
@@ -365,31 +385,34 @@ class ASTNode(object):
 			free_reglist.append(newnum)
 			return movenum, free_reglist, lis
 		elif(self.data == "NOT" or self.data == "UMINUS"):
-			regnum,free_reglist,lis = (self.children[0].expand_assembly(free_reglist,lis,varAccessDict,for_addr))
+			regnum,free_reglist,lis = (self.children[0].expand_assembly(free_reglist,lis,varAccessDict,for_addr, currentLabel))
 			if self.dtype=="float":
 				value,num_list = givefpRegister(free_fplist)
 				free_fplist = num_list[:]
-				lis += ("\t"+OpMap_asm[self.data]+".s $f"+str(value)+", $f"+str(regnum)+"\n")
+				lis += ("\tneg.s $f"+str(value)+", $f"+str(regnum)+"\n")
 				free_fplist.append(regnum)
 				newval,num_list = givefpRegister(free_fplist)
 				free_fplist = num_list[:]
-				lis += ("\tmove.s $f"+str(newval)+", $f"+str(value)+"\n")
+				lis += ("\tmov.s $f"+str(newval)+", $f"+str(value)+"\n")
 				free_fplist.append(value)
 				return newval,free_reglist,lis
 
 			newreg,newnum = giveminRegister(free_reglist)
 			free_reglist.remove(newnum)
-			lis += ("\t"+OpMap_asm[self.data]+" "+newreg+", "+num_to_reg(regnum)+"\n")
+			if(self.data == "UMINUS"):
+				lis += ("\t"+OpMap_asm[self.data]+" "+newreg+", "+num_to_reg(regnum)+"\n")
+			else:
+				lis += ("\t"+OpMap_asm[self.data]+" "+newreg+", "+num_to_reg(regnum)+", 1\n")
 			free_reglist.append(regnum)
 			movereg,movenum = giveminRegister(free_reglist)
 			lis += ("\tmove "+movereg+", "+newreg+"\n")
 			free_reglist.remove(movenum)
 			free_reglist.append(newnum)
-			return movenum,free_reglist,lis			
+			return movenum,free_reglist,lis
 		elif(self.data == "ADDR"):
 			if self.children[0].data=="DEREF":
-				return self.children[0].children[0].expand_assembly(free_reglist,lis,varAccessDict,for_addr)
-			varcount,free_reglist,lis = (self.children[0].expand_assembly(free_reglist,lis,varAccessDict,True))
+				return self.children[0].children[0].expand_assembly(free_reglist,lis,varAccessDict,for_addr, currentLabel)
+			varcount,free_reglist,lis = (self.children[0].expand_assembly(free_reglist,lis,varAccessDict,True, currentLabel))
 			register,regnum = giveminRegister(free_reglist)
 			free_reglist.remove(regnum)
 			if varcount == (-1):
@@ -399,7 +422,7 @@ class ASTNode(object):
 				lis += ("\taddi "+register+", $sp, "+str(varcount) +"\n")
 			return regnum, free_reglist, lis
 		elif(self.data == "DEREF"):
-			regnum,free_reglist,lis = (self.children[0].expand_assembly(free_reglist,lis,varAccessDict,for_addr))
+			regnum,free_reglist,lis = (self.children[0].expand_assembly(free_reglist,lis,varAccessDict,for_addr, currentLabel))
 			if self.dtype == "float" and not(for_addr) and self.pointerdepth == 0:
 				value,num_list = givefpRegister(free_fplist)
 				free_fplist = num_list[:]
@@ -441,7 +464,7 @@ class ASTNode(object):
 				lis += ("\tlw "+register+", "+str(varAccessDict[self.children[0]])+"($sp)\n")
 			else:
 				lis += ("\tlw "+register+", global_"+self.children[0]+"\n")
-			return regnum,free_reglist,lis		
+			return regnum,free_reglist,lis
 
 		elif(self.data == 'CALL'):
 			templis = lis
@@ -456,7 +479,7 @@ class ASTNode(object):
 			stck = stackcount
 			stackcount *= (-1)
 			for i in self.children[1]:
-				regnum, free_reglist, lis = i.expand_assembly(free_reglist,lis,varAccessDict,False)
+				regnum, free_reglist, lis = i.expand_assembly(free_reglist,lis,varAccessDict,False, currentLabel)
 				if i.dtype == "float" and i.pointerdepth == 0:
 					stackcount += 8
 				else:
@@ -478,9 +501,9 @@ class ASTNode(object):
 			free_reglist.remove(movenum)
 			return movenum, free_reglist, lis
 			# return 0, free_reglist, lis
-		
+
 		elif(self.data == 'RETURN'):
-			regnum, free_reglist, lis = self.children[0].expand_assembly(free_reglist,lis,varAccessDict,for_addr)
+			regnum, free_reglist, lis = self.children[0].expand_assembly(free_reglist,lis,varAccessDict,for_addr, currentLabel)
 			lis += ("\tmove $v1, "+num_to_reg(regnum)+" # move return value to $v1\n")
 			return regnum, free_reglist, lis
 
@@ -514,3 +537,23 @@ def giveminRegister(num_list):
 	else:
 		print("Insuffient number of registers")
 		sys.exit()
+
+def write_G_GT_L_LT_EQ_NE_Float(operator, leftreg, rightreg, currentLabel, condfnum1, isNE, free_reglist):
+	stri = ""
+	if(isNE == 0):
+		stri += ("\t"+FloatSBinaryOpMap[operator]+" $f"+str(leftreg)+", $f"+str(rightreg)+"\n\tbc1f L_CondFalse_"+str(condfnum1)+"\n\tli $s0, 1\n")
+	else:
+		stri += ("\t"+FloatSBinaryOpMap[operator]+" $f"+str(leftreg)+", $f"+str(rightreg)+"\n\tbc1f L_CondTrue_"+str(condfnum1)+"\n\tli $s0, 0\n")
+	stri += ("\tj L_CondEnd_"+str(condfnum1)+"\n")
+	if(isNE == 0):
+		stri += ("L_CondFalse_"+str(condfnum1)+":\n\tli $s0, 0\n")
+	else:
+		stri += ("L_CondTrue_"+str(condfnum1)+":\n\tli $s0, 1\n")
+	free_reglist.remove(0)
+	reg_str, reg_id = giveminRegister(free_reglist)
+	free_reglist.append(0)
+	free_reglist.remove(reg_id)
+	stri += ("L_CondEnd_"+str(condfnum1)+":\n\tmove "+str(reg_str)+", $s0\n")
+	# stri += ("\tbne $s1, $0, label"+str(condfnum1+1)+"\n")
+	# stri += ("\tj label"+str(condfnum1+2)+"\n")
+	return stri, free_reglist, reg_id

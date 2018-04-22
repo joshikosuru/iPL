@@ -36,8 +36,17 @@ OpMap_asm = {
 	"MUL" : "mul",
 	"DIV" : "div",
 	"ASGN" : "=",
-	"NOT" : "not",
+	"NOT" : "xori",
 	"UMINUS" : "negu"
+}
+
+FloatSBinaryOpMap = {
+    "LE" : "c.le.s",
+	"GE" : "c.le.s",
+	"LT" : "c.lt.s",
+	"GT" : "c.lt.s",
+	"NE" : "c.eq.s",
+	"EQ" : "c.eq.s"
 }
 
 unaryOpMap = {

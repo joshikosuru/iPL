@@ -725,9 +725,9 @@ def process(lines):
 	yacc.parse(lines)
 	# utils.printdict(varSymDict, 1)
 	# utils.printdict(funcSymDict, 0)
-	# utils.giveTableSYM(varSymDict, funcSymDict, fileName)
-	# utils.printFunctionNodesAST(FunctionNodes,fileName)
-	# utils.giveCFGFile(FunctionNodes,fileName)
+	utils.giveTableSYM(varSymDict, funcSymDict, fileName)
+	utils.printFunctionNodesAST(FunctionNodes,fileName)
+	utils.giveCFGFile(FunctionNodes,fileName)
 	utils.generateAssemblyCode(FunctionNodes, fileName, varSymDict)
 	print("Successfully Parsed")
 

@@ -1,7 +1,7 @@
 import sys
 from operator import itemgetter
 
-from ast import ASTNode
+from ast import ASTNode, num_to_reg
 
 def printdict(dict, isVar):
 	if isVar == 1:
@@ -263,19 +263,19 @@ def writeFS(f, varSymDict,blockCount):
 		stri += ("label"+str(i+blockCount)+":\n")
 		a = blocks[i]
 		if a[-1] == 'IF':
-			var,free_reglist,lis = a[0].expand_assembly(free_reglist,"",varAccessDict,False)
+			var,free_reglist,lis = a[0].expand_assembly(free_reglist,"",varAccessDict,False, i+blockCount)
 			stri += lis
-			stri += ("\tbne $s0, $0, label"+str(blockCount+a[1]-1)+"\n\tj label"+str(blockCount+a[2]-1)+"\n")
+			stri += ("\tbne "+num_to_reg(var)+", $0, label"+str(blockCount+a[1]-1)+"\n\tj label"+str(blockCount+a[2]-1)+"\n")
 		elif a[-1] == 'GOTO':
 			for j in range(0,len(a)-2):
-				var,free_reglist,lis = a[j].expand_assembly(free_reglist,"",varAccessDict,False)
+				var,free_reglist,lis = a[j].expand_assembly(free_reglist,"",varAccessDict,False, i+blockCount)
 				stri += lis
 
 			stri += ("\tj label"+str(blockCount+a[len(a)-2]-1)+"\n")
 		else:
 			if(f.returnSTMT is not None):
 				if(len(f.returnSTMT) > 0):
-					var,free_reglist,lis = f.returnSTMT[0].expand_assembly(free_reglist,"",varAccessDict,False)
+					var,free_reglist,lis = f.returnSTMT[0].expand_assembly(free_reglist,"",varAccessDict,False, i+blockCount)
 					stri += lis
 
 			stri += ("\tj epilogue_"+(str(f.name))+"\n")
