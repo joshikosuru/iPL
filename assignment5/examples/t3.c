@@ -1,5 +1,6 @@
 int *d;
 
+int* f(int a, int b);
 int* f(int a, int b)
 {
 	int *c,m;
@@ -9,7 +10,7 @@ int* f(int a, int b)
 
 
 void main(){
-	
+
 	int x ,y;
 	d = f(3,4);
 

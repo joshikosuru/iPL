@@ -3,6 +3,7 @@ int *g3, l3, *g;
 
 int *func2(int x1, int y1);
 float *var1, var2;
+void func1(int a, int b);
 
 void func1(int a, int b)
 {
@@ -12,7 +13,7 @@ void func1(int a, int b)
         while(  **h != 0)
         {
             **h = *g3 + 1;
-            
+
         }
     }
     return ;
@@ -29,7 +30,7 @@ void main()
             *g3 = *g3 + 1;
         }
     }
-    
+
 }
 
 int *func2(int a, int b)
@@ -42,7 +43,6 @@ int *func2(int a, int b)
             *g3 = *g3 + 1;
         }
     }
-    
+
     return h;
 }
-

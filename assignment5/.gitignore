@@ -6,3 +6,6 @@ A5-files/*
 __pycache__/*
 parsetab.py
 parser.out
+examples/code
+examples/ref
+*.c*

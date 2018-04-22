@@ -1,5 +1,6 @@
 int *d;
 
+int* f(int a, int c);
 int* f(int a, int c)
 {
 	int *b,l;
@@ -9,7 +10,7 @@ int* f(int a, int c)
 
 
 void main(){
-	
+
 	int x ,*ptr;
 	ptr=&x;
 	*ptr =9;

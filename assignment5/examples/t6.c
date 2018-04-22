@@ -4,9 +4,9 @@ int *f(int x, int *y);
 
 void main(){
 	int x ,**y,**z;
-	int *rt;
+	float *rt;
 	*y=*z;
-	*rt = 9;
+	*rt = 9.8;
 	g = f(3,g);
 }
 
